@@ -9,7 +9,7 @@ interface APIRequestProps {
     };
 }
 
-async function makeRequest(method: string, props: APIRequestProps, data?: any): Promise<any> {
+async function makeRequest(method: string, props: APIRequestProps, data?: any, pagination?: boolean): Promise<any> {
     const requestOptions: RequestInit = {
         method,
         headers: {
@@ -18,12 +18,10 @@ async function makeRequest(method: string, props: APIRequestProps, data?: any): 
         body: data ? JSON.stringify(data) : undefined,
     }
     try {
-        const response = await fetch(props.url, requestOptions);
+        let response: any = await fetch(props.url, requestOptions);
         const responseData = await response.json();
-        console.log(responseData);
         return responseData;
     } catch (err) {
-        console.log(err);
     }
 }
 

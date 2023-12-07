@@ -1,0 +1,50 @@
+.center {
+    position: fixed;
+    top: 50%;
+    right: 50%;
+}
+.wheelContainer {
+    height: 10vh;
+    width: 10vh;
+    background-color: black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: gradientAnimation .5s infinite ease-in-out;
+
+}
+.wheel {
+    height: 7vh;
+    width: 7vh;
+    background-color: white;
+    border-radius: 50%;
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background: linear-gradient(to left top, white 0%, white 10%, black 25%, black 100%);
+    }
+    12.5% {
+        background: linear-gradient(to top, white 0%, white 10%, black 25%, black 100%);
+    }
+    25% {
+        background: linear-gradient(to right top, white 0%, white 10%, black 25%, black 100%);
+    }
+    37.5% {
+        background: linear-gradient(to right, white 0%, white 10%, black 25%, black 100%);
+    }
+    50% {
+        background: linear-gradient(to right bottom, white 0%, white 10%, black 25%, black 100%);
+    }
+    62.5% {
+        background: linear-gradient(to bottom, white 0%, white 10%, black 25%, black 100%);
+    }
+    75% {
+        background: linear-gradient(to left bottom, white 0%, white 10%, black 25%, black 100%);
+    }
+    87.5% {
+        background: linear-gradient(to left, white 0%, white 10%, black 25%, black 100%);
+
+    }
+}
