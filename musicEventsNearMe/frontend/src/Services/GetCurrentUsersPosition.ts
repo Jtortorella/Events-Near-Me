@@ -1,4 +1,4 @@
-export function getCurrentUsersPosition(): Promise<GeolocationCoordinates> {
+export function GetCurrentUsersPosition(): Promise<GeolocationCoordinates> {
     return new Promise((resolve, reject) => {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(

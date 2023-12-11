@@ -1,9 +1,10 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
-import { Event, EventApiResponse, GeoCoordinates } from "../Interfaces/EventApiResponse";
-import { get } from "../Hooks/APIService";
-
+import { EventInfo, EventApiResponse, GeoCoordinates } from "../Interfaces/EventApiResponse";
+import { get } from "../Services/APIService";
+import DebuggerService from "../Services/DebuggerService"
+import { RemoveDuplicatesBetweenTwoArrays } from "../Services/CheckForDuplicates";
 export interface ConcertDataContextProps {
-  events: Event[] | null;
+  events: EventInfo[] | null;
   geoLocationOfEvents: GeoCoordinates[] | null;
   isLoading: boolean;
   isError: boolean;
@@ -18,7 +19,9 @@ interface ProviderProps {
 const Context = createContext<ConcertDataContextProps | undefined>(undefined);
 
 const Provider: React.FC<ProviderProps> = ({ children }) => {
-  const [events, setEvents] = useState<Event[] | null>(null);
+  let debuggerService = new DebuggerService('UseContext');
+
+  const [events, setEvents] = useState<EventInfo[] | null>(null);
   const [geoLocationOfEvents, setGeoLocationOfEvents] = useState<GeoCoordinates[] | null>(null);
 
   const [isLoading, setisLoading] = useState<boolean>(true);
@@ -28,11 +31,22 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
     const fetchData = async () => {
       try {
         const eventResponse: EventApiResponse = await get({url: "http://localhost:8080/concertData/events"});
-        setEvents(eventResponse.events);
-        setGeoLocationOfEvents(handleSetGeoLocation(eventResponse.events));
-        console.log(eventResponse.events);
+        if (events && events?.length > 0) {
+          setEvents(RemoveDuplicatesBetweenTwoArrays(eventResponse.events, events));
+        }
+        else {
+          setEvents(eventResponse.events);
+        }
+        if (geoLocationOfEvents && geoLocationOfEvents?.length > 0) {
+          setEvents(RemoveDuplicatesBetweenTwoArrays(geoLocationOfEvents, handleSetGeoLocation(eventResponse.events)));
+        }
+        else {
+          setGeoLocationOfEvents(handleSetGeoLocation(eventResponse.events));
+        }
+        debuggerService.showVerbose(eventResponse);
       } catch (err) {
         setIsError(true);
+        debuggerService.showError(undefined, 'Could Not Connect To Database')
       } finally {
         setisLoading(false);
       }};
@@ -49,7 +63,7 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };
 
-function handleSetGeoLocation(events: Event[]): GeoCoordinates[] {
+function handleSetGeoLocation(events: EventInfo[]): GeoCoordinates[] {
   let locationArray: GeoCoordinates[] = [];
   for (let event of events) {
     locationArray.push(event.location.geo);

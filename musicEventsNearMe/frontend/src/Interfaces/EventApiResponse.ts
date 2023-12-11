@@ -1,7 +1,7 @@
  export interface EventApiResponse {
     success: boolean;
     pagination: Pagination;
-    events: Event[];
+    events: EventInfo[];
     request: Request;
   }
   
@@ -14,7 +14,7 @@
     previousPage: string | null;
   }
   
-   export interface Event {
+   export interface EventInfo {
     name: string;
     identifier: string;
     url: string;
@@ -51,7 +51,7 @@
     maximumAttendeeCapacity: number;
     address: Address;
     geo: GeoCoordinates;
-    events: Event[];
+    events: EventInfo[];
     isPermanentlyClosed: boolean;
     numUpcomingEvents: number;
     externalIdentifiers: ExternalIdentifier[];
@@ -138,7 +138,7 @@
     foundingLocation: Place;
     foundingDate: string;
     genre: string[];
-    events: Event[];
+    events: EventInfo[];
     bandOrMusician: string;
     numUpcomingEvents: number;
     externalIdentifiers: ExternalIdentifier[];

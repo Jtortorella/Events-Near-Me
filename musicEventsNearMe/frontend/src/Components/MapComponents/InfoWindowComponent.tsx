@@ -1,36 +1,60 @@
-import { Event, Performer } from "../../Interfaces/EventApiResponse";
-import {convertLocalDateTimeToDateTime} from "../../Hooks/HandleDateTime"
-export const InfoWindow = (event: Event) => {
+import { EventInfo } from "../../Interfaces/EventApiResponse";
+import { convertLocalDateTimeToDateTime } from "../../Hooks/HandleDateTime";
 
-  let name = event.name;
-  let startDateTime = convertLocalDateTimeToDateTime(event.startDate);
-  let endDateTime = event.endDate;
-  if (endDateTime.includes('T')) {
-    convertLocalDateTimeToDateTime(endDateTime);
-  }
-  else {
-    endDateTime = '';
-  }
-  let performers: Performer[] = event.performer;
-  let venue = event.location.name;
+const InfoWindow = (
+  eventInfo: EventInfo,
+  onLastPage?: boolean,
+  onFirstPage?: boolean
+) => {
+  const { name, startDate, endDate, performer, location } = eventInfo;
 
-  const performerStr = getAllPerformers(performers);
-  return `<div className="infoWindowContainer">
-            <p className="infoWindowText">
-                ${name}
-                <br></br>
-                ${startDateTime}
-                <br></br>
-                ${performerStr}
-                ${venue}
-            </p>
-        </div>`;
+  const performerStr = getAllPerformers(performer);
+  
+
+  return (
+    `<div class="infoWindowContainer">
+      <p class="infoWindowText">
+        ${name}<br />
+        ${convertLocalDateTimeToDateTime(startDate)} - ${convertLocalDateTimeToDateTime(endDate)}<br />
+        ${performerStr}<br />
+        ${location.name}<br />
+        ${generateSuffix(onLastPage, onFirstPage)}
+        <div id="button-container"></div>
+      </p>
+    </div>`
+  );
 };
 
-function getAllPerformers(performers: Performer[]) {
-  let performerStr = ``;
-  for (let performer of performers) {
-    performerStr += performer.name + "<br></br>";
-  }
-  return performerStr;
+function getAllPerformers(performers: Array<any> | undefined) {
+  if (!performers) return "";
+  return performers.map((performer) => performer.name + "<br />").join("");
 }
+
+function generateSuffix(onLastPage: boolean | undefined, onFirstPage: boolean | undefined) {
+
+  let suffix = ``;
+    if (!onFirstPage) {
+      suffix += `
+        <button
+          class="prev-button button"
+          id="info-prev-button"
+        >
+          Previous
+        </button> 
+      `;
+    }
+    if (!onLastPage) {
+      suffix += `
+        <button 
+          class="next-button button"
+          id="info-next-button"
+        >
+          Next
+        </button>
+      `;
+    
+  }
+  return suffix;
+}
+
+export default InfoWindow;
