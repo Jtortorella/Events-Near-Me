@@ -1,184 +1,230 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
 import "../../Styles/MapCompentStyles.css";
 import { Context } from "../../Context/Context";
+import { EventInfo, Filter, GeoCoordinates, MarkerInformation } from "../../Interfaces/AppInterfaces";
+import { get } from "../../Services/APIService";
+import { MapBounds } from "../../Interfaces/MapBounds";
 import { GetCurrentUsersPosition } from "../../Services/GetCurrentUsersPosition";
-import { EventInfo } from "../../Interfaces/EventApiResponse";
-import { mapStyles } from "../../Styles/MapStyles";
-import microphone from "../../assets/Microphone.svg";
-import InfoWindow from "./InfoWindowComponent";
-import { VenueDataStore } from "./VenueDataStore";
-
-interface MarkerInformation {
-  marker: google.maps.Marker;
-  event: EventInfo | EventInfo[];
-  location: GeolocationCoordinates;
-}
+import { mapOptions } from "../../Styles/MapOptions";
+import InfoWindowContent from "./InfoWindowContent";
+import { mapContainerStyles } from "../../Styles/MapStyles";
 
 const MapComponent = () => {
-  const apiKey = "AIzaSyCww45TrPXdk_vRa4sKRU-8Gzcd9jr6J2M";
-  const { isLoading, events }: any = useContext(Context);
+  const { events, handleEventDataImport, setIsLoading }: any = useContext(Context);
+  const mapRef = useRef<google.maps.Map | undefined>(undefined);
+  const [selectedMarker, setSelectedMarker] = useState<MarkerInformation | undefined>(undefined);
+  const [mapCenter, setMapCenter] = useState<google.maps.LatLng | undefined>(undefined);
+  const [markers, setMarkers] = useState<MarkerInformation[]>([]);
+  const [infoWindowDisplaying, setInfoWindowDisplaying] = useState<boolean>(false);
+  const [geoLocationOfEvents, setGeoLocationOfEvents] = useState<GeoCoordinates[]>([]);
+  
+  useEffect(() => {
+    setIsLoading(true);
+    handleDefaultCenter();
+  }, []);
 
-  const previousWindowRef = useRef<google.maps.InfoWindow | null>(null);
-  let map: google.maps.Map;
-  let infowindow: google.maps.InfoWindow | null = null;
+  useEffect(() => {
+    createMarkers();
+  }, [events]);
 
-  const createMarkers = () => {
-    let previouslyEstablishedData: MarkerInformation[] = [];
-    for (let event of events) {
-      const location = event.location.geo;
-      let locationExists: number = -1;
-      if (previouslyEstablishedData.length > 0) {
-        locationExists = previouslyEstablishedData.findIndex(
-          (prevLocation) =>
-            prevLocation.location.latitude === location.latitude &&
-            prevLocation.location.longitude === location.longitude
-        );
-      }
-      if (locationExists === -1) {
+  useEffect(() => {
+    addClickListenersToMarkers();
+    setIsLoading(false);
+  }, [markers]);
 
-        previouslyEstablishedData.push({
-          location: location,
-          marker: new google.maps.Marker({
-            position: new google.maps.LatLng(
-              location.latitude,
-              location.longitude
-            ),
-            map: map, // Assuming `map` is defined somewhere in your code
-          }),
-          event: [event], // Wrap event in an array
-        });
+  const setMapReferenceToCurrentMap = (event: google.maps.Map) => {
+    mapRef.current = event;
+  };
+  const checkIfDateIsInBetweenTwoOtherDates = (compareDate: string, minimumDate: string, maximumDate: string) => {
+    const compareDateTime = new Date(compareDate).getTime();
+    const minimumDateTime = new Date(minimumDate).getTime();
+    const maximumDateTime = new Date(maximumDate).getTime();
+    return compareDateTime >= minimumDateTime && compareDateTime <= maximumDateTime;
+  }
+  const filterEventsByFilter = (filter: Filter, eventsPassed: EventInfo[]) => {
+    let filteredData: EventInfo[] = [];
+    if (eventsPassed) {
+      filteredData = eventsPassed.filter((event: EventInfo) => {
+        return checkIfDateIsInBetweenTwoOtherDates(new Date(event.startDate).toISOString().split('T')[0], filter.startDate, filter.endDate);
+      });
+    }
+    return filteredData;
+  }
+
+  const handleSetGeoLocation = (event: EventInfo, currentGeoLocationOfEvents: GeoCoordinates[]) => {
+    return currentGeoLocationOfEvents ? [...currentGeoLocationOfEvents, event.location.geo] : [event.location.geo];
+  };
+
+  const handleEditPreExistingMarker = (event: EventInfo, index: number, currentMarkers: MarkerInformation[]) => {
+    if (!currentMarkers || index < 0 || index >= currentMarkers.length) {
+      return currentMarkers;
+    }
+  
+    const updatedMarkers = [...currentMarkers];
+    const currentEventsAtMarker = updatedMarkers[index].event;
+  
+    // Check if the event already exists in the currentEventsAtMarker
+    const eventExists = currentEventsAtMarker.some((existingEvent) => existingEvent.identifier === event.identifier);
+  
+    if (!eventExists) {
+      updatedMarkers[index] = {
+        ...updatedMarkers[index],
+        event: [...updatedMarkers[index].event, event],
+      };
+    }
+  
+    return updatedMarkers;
+  };
+  
+  const checkIfLocationAlreadyExists = (location: GeoCoordinates, array: GeoCoordinates[]) => {
+    return array.findIndex((eventLocation) => (
+      eventLocation.latitude === location.latitude && eventLocation.longitude === location.longitude
+    ));
+  };
+
+  const handleAddNewMarker = (event: EventInfo, currentMarkers: MarkerInformation[]) => {
+    const location = event.location.geo;
+    const marker: MarkerInformation = {
+      location: location,
+      marker: new google.maps.Marker({
+        position: new google.maps.LatLng(location.latitude, location.longitude),
+        map: mapRef.current,
+      }),
+      event: [event],
+    };
+    return currentMarkers ? [...currentMarkers, marker] : [marker];
+  };
+
+
+  const createMarkers = (filter?: Filter) => {
+    let currentGeoLocationOfEvents = geoLocationOfEvents;
+    let currentEvents = filter ? filterEventsByFilter(filter, events) : events;
+    let currentMarkers = markers;
+    for (const eventData of currentEvents || []) {
+      const index = checkIfLocationAlreadyExists(eventData.location.geo, currentGeoLocationOfEvents);
+      if (index !== -1) {
+        currentMarkers = handleEditPreExistingMarker(eventData, index, currentMarkers);
       } else {
-        const existingEvent = previouslyEstablishedData[locationExists]
-          .event as EventInfo[];
-        if (Array.isArray(existingEvent)) {
-          existingEvent.push(event);
-        } else {
-          previouslyEstablishedData[locationExists].event = [
-            previouslyEstablishedData[locationExists].event,
-            event,
-          ];
-        }
+        currentGeoLocationOfEvents = handleSetGeoLocation(eventData, currentGeoLocationOfEvents);
+        currentMarkers = handleAddNewMarker(eventData, currentMarkers);
       }
-      for (let markers of previouslyEstablishedData) {
-        attachMarkerClickEvent(markers);
+    }
+    setMarkers(currentMarkers);
+    setGeoLocationOfEvents(currentGeoLocationOfEvents);
+  };
+
+  const handleMapBoundChange = async () => {
+    setIsLoading(true);
+    const bounds = mapRef.current?.getBounds();
+    if (bounds) {
+      const northeast = bounds.getNorthEast();
+      const southwest = bounds.getSouthWest();
+      const mapBounds: MapBounds = {
+        latitudeHigh: northeast.lat(),
+        latitudeLow: southwest.lat(),
+        longitudeHigh: northeast.lng(),
+        longitudeLow: southwest.lng(),
+      };
+      try {
+        const eventResponse: EventInfo[] | undefined = await get({
+          url: `http://localhost:8080/concertData/events?latitudeHigh=${encodeURIComponent(
+            mapBounds.latitudeHigh
+          )}&latitudeLow=${encodeURIComponent(
+            mapBounds.latitudeLow
+          )}&longitudeLow=${encodeURIComponent(
+            mapBounds.longitudeHigh
+          )}&longitudeHigh=${encodeURIComponent(mapBounds.longitudeLow)}`,
+        });
+        handleEventDataImport(eventResponse);
+      } catch (error) {
+        console.error(error);
       }
     }
   };
 
-  const attachMarkerClickEvent = (marker: MarkerInformation) => {
-    google.maps.event.addListener(marker.marker, "click", () => {
-      let venueDataStore: VenueDataStore = new VenueDataStore(marker.event);
-      let multipleEvents = venueDataStore.getMultipleEvents();
-      if (previousWindowRef.current) {
-        previousWindowRef.current.close();
-      }
-
-      if (venueDataStore.getMultipleEvents()) {
-        addInfoWindowListeners(marker, venueDataStore, multipleEvents);
-      }
-      else {
-        initInfoWindow(marker, venueDataStore, multipleEvents);
-      }
-      previousWindowRef.current = infowindow;
-    });
-  };
-
-const initInfoWindow = (marker: MarkerInformation, venueDataStore: VenueDataStore, multipleEvents: boolean) => {
-    infowindow = new google.maps.InfoWindow({
-    content: InfoWindow(venueDataStore.getEventInformationAtCurrentIndex(), venueDataStore.getOnLastPage(), venueDataStore.getOnFirstPage()),
-  });
-  infowindow.open(map, marker.marker);
-  return infowindow;
-}
-
-function addInfoWindowListeners(marker: MarkerInformation, venueDataStore: VenueDataStore, multipleEvents: boolean) {
-  const infoWindow = initInfoWindow(marker, venueDataStore, multipleEvents);
-
-  const handlePrevButtonClick = () => {
-    infoWindow.close();
-    venueDataStore.decrementIndex();
-    addInfoWindowListeners(marker, venueDataStore, multipleEvents);
-    previousWindowRef.current = infoWindow;
-  };
-
-  const handleNextButtonClick = () => {
-    infoWindow.close();
-    venueDataStore.incrementIndex();
-    addInfoWindowListeners(marker, venueDataStore, multipleEvents);
-    previousWindowRef.current = infoWindow;
-  };
-
-  const handleDomReady = () => {
-    document.getElementById("info-prev-button")?.removeEventListener("click", handlePrevButtonClick);
-    document.getElementById("info-next-button")?.removeEventListener("click", handleNextButtonClick);
-    document.getElementById("info-prev-button")?.addEventListener("click", handlePrevButtonClick);
-    document.getElementById("info-next-button")?.addEventListener("click", handleNextButtonClick);
-  };
-
-  // Remove existing "domready" event listener before adding a new one
-  google.maps.event.clearListeners(infoWindow, "domready");
-  google.maps.event.addListener(infoWindow, "domready", handleDomReady);
-}
-
-
-  const initMap = async () => {
-    let latitude;
-    let longitude;
-
+  async function handleDefaultCenter(): Promise<google.maps.LatLng | undefined> {
     try {
-      ({ latitude, longitude } = await GetCurrentUsersPosition());
+      setMapCenter(await GetCurrentUsersPosition());
     } catch (error) {
-      console.error("Error occurred:", error);
-      latitude = 40.7128;
-      longitude = -74.006;
+      console.error("Error setting default centers", error);
+      return undefined;
     }
+  }
 
-    map = new window.google.maps.Map(
-      document.getElementById("map") as HTMLElement,
-      {
-        center: { lat: latitude, lng: longitude },
-        zoom: 10,
-        gestureHandling: "auto",
-        zoomControl: false,
-        styles: mapStyles,
-        streetViewControl: false,
-        mapTypeControl: false,
-        fullscreenControl: false,
-        keyboardShortcuts: false,
-        disableDefaultUI: true,
-      }
+  const addClickListenersToMarkers = () => {
+    if (markers) {
+      markers.forEach((marker) => {
+        google.maps.event.clearInstanceListeners(marker.marker);
+        marker.marker.addListener("click", () => renderInfoWindow(marker));
+      });
+    }
+  };
+
+  const handleMarkerClick = (marker: MarkerInformation) => {
+    setInfoWindowDisplaying(true);
+    setSelectedMarker(marker);
+  };
+
+  const renderInfoWindow = (marker: MarkerInformation) => {
+    return (
+      <InfoWindow
+        position={{
+          lat: marker.location.latitude,
+          lng: marker.location.longitude,
+        }}
+        onCloseClick={() => {
+          setInfoWindowDisplaying(false);
+          setSelectedMarker(undefined);
+        }}
+      >
+          <InfoWindowContent eventInfo={marker.event} />
+      </InfoWindow>
     );
   };
 
-  useEffect(() => {
-    if (!isLoading) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
-      script.defer = true;
-      script.async = true;
-
-      script.onload = async () => {
-        await initMap();
-        await createMarkers();
-      };
-
-      document.head.appendChild(script);
-
-      return () => {
-        document.head.removeChild(script);
-
-        // Close the info window when the component unmounts
-        if (infowindow) {
-          infowindow.close();
-        }
-      };
-    }
-  }, [isLoading]);
+  function handleTimeFilterClick(dayLength: number): any {
+    const currentDate = new Date();
+    const startDate = currentDate.toISOString().split('T')[0];
+  
+    const endDate = new Date(currentDate);
+    endDate.setDate(currentDate.getDate() + dayLength);
+    const endDateString = endDate.toISOString().split('T')[0];
+  
+    const filter: Filter = {
+      startDate: startDate,
+      endDate: endDateString,
+    };
+    createMarkers(filter);
+  }
 
   return (
-    <div id="mapContainer" className="mapContainer">
-      <div id="map" className="map"></div>
-    </div>
+    <><button onClick={() => handleTimeFilterClick(1)}>Today</button>
+    <button onClick={() => handleTimeFilterClick(3)}>Three Days</button>
+<div id="mapContainer" className="mapContainer">
+      <GoogleMap
+        onLoad={(map: google.maps.Map) => {
+          setMapReferenceToCurrentMap(map);
+        } }
+        onBoundsChanged={handleMapBoundChange}
+        mapContainerStyle={mapContainerStyles}
+        center={mapCenter}
+        zoom={10}
+        options={mapOptions}
+      >
+        {markers &&
+          markers.map((marker) => (
+            <Marker
+              key={marker.event[0].identifier}
+              position={{
+                lat: marker.location.latitude,
+                lng: marker.location.longitude,
+              }}
+              onClick={() => handleMarkerClick(marker)} />
+          ))}
+        {infoWindowDisplaying && selectedMarker && renderInfoWindow(selectedMarker)}
+      </GoogleMap>
+    </div></>
   );
 };
 

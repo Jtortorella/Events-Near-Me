@@ -9,7 +9,7 @@ interface APIRequestProps {
     };
 }
 
-async function makeRequest(method: string, props: APIRequestProps, data?: any, pagination?: boolean): Promise<any> {
+async function makeRequest(method: string, props: APIRequestProps, data?: any): Promise<any> {
     const requestOptions: RequestInit = {
         method,
         headers: {
@@ -22,12 +22,12 @@ async function makeRequest(method: string, props: APIRequestProps, data?: any, p
         const responseData = await response.json();
         return responseData;
     } catch (err) {
+        console.log(err);
     }
 }
 
 export async function post(props: APIRequestProps, data?: any) {
     let response = await makeRequest('POST', props, data);
-    console.log(response);
     return response;
 }
 

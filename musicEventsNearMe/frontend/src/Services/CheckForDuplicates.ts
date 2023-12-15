@@ -7,6 +7,12 @@ export function CheckForDuplicatesDataInArray(data: any, dataSource: Array<any>)
 }
 
 
-export function RemoveDuplicatesBetweenTwoArrays(data: Array<any>, dataSource: Array<any>): Array<any> {
-    return data.filter(element => !dataSource.includes(element));
+export function RemoveDuplicatesBetweenTwoArrays(newData: Array<any> | null, previousData: Array<any>): Array<any> {
+    if (newData) {
+        return newData.filter(element => !previousData.includes(element));
+    }
+    else {
+        return previousData;
+    }
+
 }

@@ -1,18 +1,4 @@
- export interface EventApiResponse {
-    success: boolean;
-    pagination: Pagination;
-    events: EventInfo[];
-    request: Request;
-  }
-  
-   export interface Pagination {
-    page: number;
-    perPage: number;
-    totalItems: number;
-    totalPages: number;
-    nextPage: string | null;
-    previousPage: string | null;
-  }
+
   
    export interface EventInfo {
     name: string;
@@ -157,14 +143,7 @@
     source: string;
     identifier: string;
   }
-  
-  export interface Request {
-    endpoint: string;
-    methodType: string;
-    params: any;
-    ip: string;
-    userAgent: string;
-  }
+
   
   export interface UrlType {
     type: string;
@@ -172,3 +151,13 @@
     url: string;
   }
   
+  export interface MarkerInformation {
+    marker: google.maps.Marker;
+    event: EventInfo[];
+    location: GeoCoordinates;
+  }
+
+  export interface Filter {
+    startDate: string;
+    endDate: string;
+  }

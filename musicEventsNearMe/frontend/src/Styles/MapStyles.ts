@@ -1,4 +1,9 @@
-export const mapStyles: MapTypeStyle[] = [
+
+export const mapContainerStyles = {
+  width: "80%",
+  height: "80vh",
+};
+export const mapStyles: google.maps.MapTypeStyle[] = [
   {
     "elementType": "geometry",
     "stylers": [
