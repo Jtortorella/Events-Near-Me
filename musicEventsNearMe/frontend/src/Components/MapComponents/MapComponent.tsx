@@ -45,7 +45,7 @@ const MapComponent = () => {
       setFilteredMarkers(filterMarkerByEvents(filterEventsByFilter(events)));
       setFilterSet(true);
     }
-  }, [filter]);
+  }, [filter, events]);
 
   useEffect(() => {
     updateMarkers();
