@@ -152,7 +152,6 @@
   }
   
   export interface MarkerInformation {
-    marker: google.maps.Marker;
     event: EventInfo[];
     location: GeoCoordinates;
   }
