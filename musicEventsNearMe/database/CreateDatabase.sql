@@ -2,233 +2,208 @@ DROP DATABASE music_events_near_me;
 CREATE DATABASE music_events_near_me;
 
 USE music_events_near_me;
+-- Table for MusicEvent
+CREATE TABLE music_events (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    identifier VARCHAR(255),
+    url VARCHAR(255),
+    image VARCHAR(255),
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255),
+    event_status VARCHAR(255),
+    start_date VARCHAR(255),
+    end_date VARCHAR(255),
+    previous_start_date VARCHAR(255),
+    door_time VARCHAR(255),
+    location_id BIGINT REFERENCES locations(id),
+    event_attendance_mode VARCHAR(255),
+    is_accessible_for_free BOOLEAN,
+    promo_image VARCHAR(255),
+    event_type VARCHAR(255),
+    headliner_in_support BOOLEAN,
+    custom_title VARCHAR(255),
+    subtitle VARCHAR(255),
+    time_record_was_entered TIMESTAMP,
+    UNIQUE(identifier)
+);
 
--- Table: music_events
-CREATE TABLE
-    music_events (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        date_modified VARCHAR(255),
-        date_published VARCHAR(255),
-        door_time VARCHAR(255),
-        end_date VARCHAR(255),
-        event_attendance_mode VARCHAR(255),
-        event_status VARCHAR(255),
-        event_type VARCHAR(255),
-        headliner_in_support BOOLEAN,
-        identifier VARCHAR(255),
-        image VARCHAR(255),
-        is_accessible_for_free BOOLEAN,
-        name VARCHAR(255),
-        previous_start_date VARCHAR(255),
-        promo_image VARCHAR(255),
-        start_date VARCHAR(255),
-        subtitle VARCHAR(255),
-        url VARCHAR(255),
-        time_record_was_entered VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for Location
+CREATE TABLE locations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    identifier VARCHAR(255),
+    url VARCHAR(255),
+    image VARCHAR(255),
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255),
+    maximum_attendee_capacity INT,
+    is_permanently_closed BOOLEAN,
+    num_upcoming_events INT,
+    UNIQUE(identifier)
+);
 
--- Table: addresses
-CREATE TABLE
-    addresses (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        address_country_id BIGINT,
-        address_region_id BIGINT,
-        address_locality VARCHAR(255),
-        address_type VARCHAR(255),
-        jam_base_city_id INTEGER,
-        jam_base_metro_id INTEGER,
-        postal_code VARCHAR(255),
-        street_address VARCHAR(255),
-        street_address2 VARCHAR(255),
-        timezone VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for Offer
+CREATE TABLE offers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    identifier VARCHAR(255),
+    url VARCHAR(255),
+    image VARCHAR(255),
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255),
+    category VARCHAR(255),
+    price_specification_id BIGINT REFERENCES price_specifications(id),
+    seller_id BIGINT REFERENCES sellers(id),
+    valid_from VARCHAR(255),
+    UNIQUE(identifier)
+);
 
--- Table: address_countries
-CREATE TABLE
-    address_countries (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        address_country_type VARCHAR(255),
-        alternate_name VARCHAR(255),
-        identifier VARCHAR(255),
-        name VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for UrlType
+CREATE TABLE url_types (
+    id SERIAL PRIMARY KEY,
+    url_type VARCHAR(255),
+    identifier VARCHAR(255),
+    url VARCHAR(255),
+    UNIQUE(identifier)
+);
 
--- Table: address_regions
-CREATE TABLE
-    address_regions (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        address_region_type VARCHAR(255),
-        alternate_name VARCHAR(255),
-        identifier VARCHAR(255),
-        name VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for Address
+CREATE TABLE addresses (
+    id SERIAL PRIMARY KEY,
+    address_type VARCHAR(255),
+    street_address VARCHAR(255),
+    address_locality VARCHAR(255),
+    postal_code VARCHAR(255),
+    address_region_id BIGINT REFERENCES address_regions(id),
+    address_country_id BIGINT REFERENCES address_countries(id),
+    street_address2 VARCHAR(255),
+    timezone VARCHAR(255),
+    jam_base_metro_id INT,
+    jam_base_city_id INT
+);
 
--- Table: external_identifiers
-CREATE TABLE
-    external_identifiers (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        identifier VARCHAR(255),
-        source VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for ExternalIdentifier
+CREATE TABLE external_identifiers (
+    id SERIAL PRIMARY KEY,
+    source VARCHAR(255),
+    identifier VARCHAR(255)
+);
 
--- Table: geo_coordinates
-CREATE TABLE
-    geo_coordinates (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        geo_coordinates_type VARCHAR(255),
-        latitude DOUBLE PRECISION,
-        longitude DOUBLE PRECISION,
-        PRIMARY KEY (id)
-    );
+-- Table for GeoCoordinates
+CREATE TABLE geo_coordinates (
+    id SERIAL PRIMARY KEY,
+    geo_coordinates_type VARCHAR(255),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION
+);
 
--- Table: locations
-CREATE TABLE
-    locations (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        date_modified VARCHAR(255),
-        date_published VARCHAR(255),
-        identifier VARCHAR(255),
-        image VARCHAR(255),
-        is_permanently_closed BOOLEAN,
-        jam_base_city_id INTEGER,
-        jam_base_metro_id INTEGER,
-        maximum_attendee_capacity INTEGER,
-        name VARCHAR(255),
-        num_upcoming_events INTEGER,
-        url VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for Performer
+CREATE TABLE performers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    identifier VARCHAR(255),
+    url VARCHAR(255),
+    image VARCHAR(255),
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255),
+    performer_type VARCHAR(255),
+    founding_location_id BIGINT REFERENCES places(id),
+    founding_date VARCHAR(255),
+    band_or_musician VARCHAR(255),
+    num_upcoming_events INT,
+    performance_date VARCHAR(255),
+    performance_rank INT,
+    is_headliner BOOLEAN,
+    date_is_confirmed BOOLEAN
+);
 
--- Table: offers
-CREATE TABLE
-    offers (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        category VARCHAR(255),
-        date_modified VARCHAR(255),
-        date_published VARCHAR(255),
-        identifier VARCHAR(255),
-        image VARCHAR(255),
-        name VARCHAR(255),
-        url VARCHAR(255),
-        valid_from VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for PriceSpecification
+CREATE TABLE price_specifications (
+    id SERIAL PRIMARY KEY,
+    price_type VARCHAR(255),
+    min_price DOUBLE PRECISION,
+    max_price DOUBLE PRECISION,
+    price DOUBLE PRECISION,
+    price_currency VARCHAR(255)
+);
 
--- Table: performers
-CREATE TABLE
-    performers (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        band_or_musician VARCHAR(255),
-        date_is_confirmed BOOLEAN,
-        date_modified VARCHAR(255),
-        date_published VARCHAR(255),
-        founding_date VARCHAR(255),
-        identifier VARCHAR(255),
-        image VARCHAR(255),
-        is_headliner BOOLEAN,
-        jam_base_city_id INTEGER,
-        jam_base_metro_id INTEGER,
-        name VARCHAR(255),
-        num_upcoming_events INTEGER,
-        performance_date VARCHAR(255),
-        performance_rank INTEGER,
-        performer_type VARCHAR(255),
-        url VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for Seller
+CREATE TABLE sellers (
+    id SERIAL PRIMARY KEY,
+    seller_type VARCHAR(255),
+    identifier VARCHAR(255),
+    disambiguating_description VARCHAR(255),
+    name VARCHAR(255),
+    url VARCHAR(255),
+    image VARCHAR(255),
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255)
+);
 
--- Table: places
-CREATE TABLE
-    places (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        name VARCHAR(255),
-        place_type VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for Place
+CREATE TABLE places (
+    id SERIAL PRIMARY KEY,
+    place_type VARCHAR(255),
+    name VARCHAR(255)
+);
 
--- Table: price_specifications
-CREATE TABLE
-    price_specifications (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        max_price DOUBLE PRECISION,
-        min_price DOUBLE PRECISION,
-        price DOUBLE PRECISION,
-        price_currency VARCHAR(255),
-        price_type VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for AddressRegion
+CREATE TABLE address_regions (
+    id SERIAL PRIMARY KEY,
+    address_region_type VARCHAR(255),
+    identifier VARCHAR(255),
+    name VARCHAR(255),
+    alternate_name VARCHAR(255)
+);
 
--- Table: sellers
-CREATE TABLE
-    sellers (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        date_modified VARCHAR(255),
-        date_published VARCHAR(255),
-        disambiguating_description VARCHAR(255),
-        identifier VARCHAR(255),
-        image VARCHAR(255),
-        name VARCHAR(255),
-        seller_type VARCHAR(255),
-        url VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for AddressCountry
+CREATE TABLE address_countries (
+    id SERIAL PRIMARY KEY,
+    address_country_type VARCHAR(255),
+    identifier VARCHAR(255),
+    name VARCHAR(255),
+    alternate_name VARCHAR(255)
+);
 
--- Table: url_types
-CREATE TABLE
-    url_types (
-        id BIGINT NOT NULL AUTO_INCREMENT,
-        identifier VARCHAR(255),
-        type VARCHAR(255),
-        url VARCHAR(255),
-        PRIMARY KEY (id)
-    );
+-- Table for MusicEvent-Location Many-to-Many Relationship
+CREATE TABLE music_event_location (
+    music_event_id BIGINT REFERENCES music_events(id),
+    location_id BIGINT REFERENCES locations(id),
+    PRIMARY KEY (music_event_id, location_id)
+);
 
--- Foreign key: FKnc7fqw6ukn54y63tn72jg6i65
-ALTER TABLE addresses ADD CONSTRAINT FKnc7fqw6ukn54y63tn72jg6i65 FOREIGN KEY (address_country_id) REFERENCES address_countries (id);
+-- Table for MusicEvent-Offer Many-to-Many Relationship
+CREATE TABLE music_event_offer (
+    music_event_id BIGINT REFERENCES music_events(id),
+    offer_id BIGINT REFERENCES offers(id),
+    PRIMARY KEY (music_event_id, offer_id)
+);
 
--- Foreign key: FKq82me5ftvj4p98wh1etfv3cv
-ALTER TABLE addresses ADD CONSTRAINT FKq82me5ftvj4p98wh1etfv3cv FOREIGN KEY (address_region_id) REFERENCES address_regions (id);
+-- Table for MusicEvent-Performer Many-to-Many Relationship
+CREATE TABLE music_event_performer (
+    music_event_id BIGINT REFERENCES music_events(id),
+    performer_id BIGINT REFERENCES performers(id),
+    PRIMARY KEY (music_event_id, performer_id)
+);
 
--- Foreign key: FKho5qr9gb8msoi0xkvwb4f90cm
-ALTER TABLE locations ADD CONSTRAINT FKho5qr9gb8msoi0xkvwb4f90cm FOREIGN KEY (address_id) REFERENCES addresses (id);
+-- Table for Performer-Member Many-to-Many Relationship
+CREATE TABLE performer_member (
+    performer_id BIGINT REFERENCES performers(id),
+    member_id BIGINT REFERENCES performers(id),
+    PRIMARY KEY (performer_id, member_id)
+);
 
--- Foreign key: FKgdnvfy1cs09y2rv4l8vj7nbiq
-ALTER TABLE locations ADD CONSTRAINT FKgdnvfy1cs09y2rv4l8vj7nbiq FOREIGN KEY (geo_id) REFERENCES geo_coordinates (id);
+-- Table for Performer-MemberOf Many-to-Many Relationship
+CREATE TABLE performer_member_of (
+    performer_id BIGINT REFERENCES performers(id),
+    member_of_id BIGINT REFERENCES performers(id),
+    PRIMARY KEY (performer_id, member_of_id)
+);
 
--- Foreign key: FKcq55s69a7e8nd9gmf4fexr7n
-ALTER TABLE offers ADD CONSTRAINT FKcq55s69a7e8nd9gmf4fexr7n FOREIGN KEY (price_specification_id) REFERENCES price_specifications (id);
-
--- Foreign key: FK7l1jcny3c3w6snu5wyc3wh3f
-ALTER TABLE offers ADD CONSTRAINT FK7l1jcny3c3w6snu5wyc3wh3f FOREIGN KEY (seller_id) REFERENCES sellers (id);
-
--- Foreign key: FKud2wtbe49u9y3rbcfc9kn7s9
-ALTER TABLE performers ADD CONSTRAINT FKud2wtbe49u9y3rbcfc9kn7s9 FOREIGN KEY (founding_location_id) REFERENCES places (id);
-
--- Foreign key: FKwsgvbhfnw2o4tmr2brqjnvpm
-ALTER TABLE performers ADD CONSTRAINT FKwsgvbhfnw2o4tmr2brqjnvpm FOREIGN KEY (jam_base_city_id) REFERENCES addresses (jam_base_city_id);
-
--- Foreign key: FKauktls85ylb7v6mj5sr9apcjd
-ALTER TABLE performers ADD CONSTRAINT FKauktls85ylb7v6mj5sr9apcjd FOREIGN KEY (jam_base_metro_id) REFERENCES addresses (jam_base_metro_id);
-
--- Foreign key: FK6rjujwvl7h0n0i0v7i3ydrfb
-ALTER TABLE performers ADD CONSTRAINT FK6rjujwvl7h0n0i0v7i3ydrfb FOREIGN KEY (place_id) REFERENCES places (id);
-
--- Foreign key: FKbej7m96d4jir61vqsv14uey5u
-ALTER TABLE performers ADD CONSTRAINT FKbej7m96d4jir61vqsv14uey5u FOREIGN KEY (performer_id) REFERENCES performers (id);
-
--- Foreign key: FK5lqti2v0vkgjqjlfvdbn9oet
-ALTER TABLE places ADD CONSTRAINT FK5lqti2v0vkgjqjlfvdbn9oet FOREIGN KEY (address_id) REFERENCES addresses (id);
-
--- Foreign key: FK53lbc7gr1h9rmk3a5r7vxx3ea
-ALTER TABLE places ADD CONSTRAINT FK53lbc7gr1h9rmk3a5r7vxx3ea FOREIGN KEY (geo_id) REFERENCES geo_coordinates (id);
-
--- Foreign key: FK2e0aobd0l8i11kumv3tw0sgfp
-ALTER TABLE external_identifiers ADD CONSTRAINT FK2e0aobd0l8i11kumv3tw0sgfp FOREIGN KEY (performer_id) REFERENCES performers (id);
-
--- Foreign key: FK9lxmq9t19a8omcbgabm9rju69
-ALTER TABLE locations ADD CONSTRAINT FK9lxmq9t19a8omcbgabm9rju69 FOREIGN KEY (external_identifier_id) REFERENCES external_identifiers (id);
+-- Table for MusicEvent-ExternalIdentifier Many-to-Many Relationship
+CREATE TABLE music_event_external_identifier (
+    music_event_id BIGINT REFERENCES music_events(id),
+    external_identifier_id BIGINT REFERENCES external_identifiers(id),
+    PRIMARY KEY (music_event_id, external_identifier_id)
+);

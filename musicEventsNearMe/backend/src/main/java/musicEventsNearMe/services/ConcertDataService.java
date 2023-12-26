@@ -103,7 +103,7 @@ public class ConcertDataService {
     }
 
     private void updateEntity(MusicEvent foundEvent, MusicEvent event) {
-        event.setId(foundEvent.getId());
+        // event.setId(foundEvent.getId());
         event.setTimeRecordWasEntered(currentDateTime);
         musicEventRepository.saveAndFlush(event);
     }
