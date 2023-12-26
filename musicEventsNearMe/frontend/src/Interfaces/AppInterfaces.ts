@@ -152,6 +152,10 @@
   }
   
   export interface MarkerInformation {
+    location: GeoCoordinates;
+  }
+
+  export interface oldMarkerInformation {
     event: EventInfo[];
     location: GeoCoordinates;
   }

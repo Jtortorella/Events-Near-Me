@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import { GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
 import "../../Styles/MapCompentStyles.css";
 import { Context } from "../../Context/Context";
@@ -7,6 +7,7 @@ import {
   Filter,
   GeoCoordinates,
   MarkerInformation,
+  oldMarkerInformation,
 } from "../../Interfaces/AppInterfaces";
 import { get } from "../../Services/APIService";
 import { MapBounds } from "../../Interfaces/MapBounds";
@@ -16,7 +17,7 @@ import InfoWindowContent from "./InfoWindowContent";
 import { mapContainerStyles } from "../../Styles/MapStyles";
 
 const MapComponent = () => {
-  const { events, handleEventDataImport, setIsLoading }: any = useContext(Context);
+  const { events, handleEventDataImport, handleGeoCoordinatesImport, setIsLoading, locations }: any = useContext(Context);
   const mapRef = useRef<google.maps.Map | undefined>(undefined);
 
   const [filter, setFilter] = useState<Filter | undefined>(undefined);
@@ -37,18 +38,9 @@ const MapComponent = () => {
   useEffect(() => {
     createMarkers();
     setIsLoading(false);
-  }, [events]);
+  }, [locations]);
 
   useEffect(() => {
-    setIsLoading(true);
-    if (filter) {
-      setFilteredMarkers(filterMarkerByEvents(filterEventsByFilter(events)));
-      setFilterSet(true);
-    }
-  }, [filter, events]);
-
-  useEffect(() => {
-    updateMarkers();
     setIsLoading(false);
   }, [filter, filteredMarkers]);
 
@@ -62,53 +54,28 @@ const MapComponent = () => {
     maximumDate: string
   ) => {
     const compareDateTime = new Date(compareDate).getTime();
-    const minimumDateTime = new Date(minimumDate).getTime();
-    const maximumDateTime = new Date(maximumDate).getTime();
-    return compareDateTime >= minimumDateTime && compareDateTime <= maximumDateTime;
+    const minimumDateTime = new Date(minimumDate).setUTCHours(0, 0, 0, 0);
+    const maximumDateTime = new Date(maximumDate).setUTCHours(23, 59, 59, 999);  
+    return compareDateTime > minimumDateTime && compareDateTime < maximumDateTime;
   };
 
-  const filterMarkerByEvents = (eventsPassed: EventInfo[]) => {
-    return [...markers].map((marker: MarkerInformation) => ({
-      ...marker,
-      event: marker.event.filter((event: EventInfo) =>
-        eventsPassed.some((passedEvent: EventInfo) =>
-          passedEvent.name.toLowerCase() === event.name.toLowerCase() &&
-          passedEvent.startDate === event.startDate
-        )
-      ),
-    })).filter((marker: MarkerInformation) => marker.event.length > 0);
-  };
 
-  const filterEventsByFilter = (eventsPassed: EventInfo[]) => {
-    let filteredData: EventInfo[] = [];
-    if (filter) {
-      if (eventsPassed) {
-        filteredData = eventsPassed.filter((event: EventInfo) => {
-          return checkIfDateIsInBetweenTwoOtherDates(
-            new Date(event.startDate).toISOString().split("T")[0],
-            filter.startDate,
-            filter.endDate
-          );
-        });
-      }
-      return filteredData;
-    }
-    return [];
-  };
 
   const handleSetGeoLocation = (
-    event: EventInfo,
+    location: GeoCoordinates,
     currentGeoLocationOfEvents: GeoCoordinates[]
   ) => {
     return currentGeoLocationOfEvents
-      ? [...currentGeoLocationOfEvents, event.location.geo]
-      : [event.location.geo];
+      ? [...currentGeoLocationOfEvents, location]
+      : [location];
   };
+
+
 
   const handleEditPreExistingMarker = (
     event: EventInfo,
     index: number,
-    currentMarkers: MarkerInformation[]
+    currentMarkers: oldMarkerInformation[]
   ) => {
     if (!currentMarkers || index < 0 || index >= currentMarkers.length) {
       return currentMarkers;
@@ -143,22 +110,41 @@ const MapComponent = () => {
   };
 
   const handleAddNewMarker = (
-    event: EventInfo,
+    location: GeoCoordinates,
     currentMarkers: MarkerInformation[]
   ) => {
-    const location = event.location.geo;
     const marker: MarkerInformation = {
       location: location,
-      event: [event],
     };
     return currentMarkers ? [...currentMarkers, marker] : [marker];
   };
 
+
+
   const createMarkers = () => {
     let currentGeoLocationOfEvents = geoLocationOfEvents;
-    let currentEvents = events;
     let currentMarkers = markers;
+    for (const location of locations || []) {
+      const index = checkIfLocationAlreadyExists(
+        location,
+        currentGeoLocationOfEvents
+      );
+      if (index === -1) {
+        currentGeoLocationOfEvents = handleSetGeoLocation(
+          location,
+          currentGeoLocationOfEvents
+        );
+        currentMarkers = handleAddNewMarker(location, currentMarkers);
+      }
+    }
+    setMarkers(currentMarkers);
+    setGeoLocationOfEvents(currentGeoLocationOfEvents);
+  };
 
+  const oldCreateMarkers = () => {
+    let currentGeoLocationOfEvents = geoLocationOfEvents;
+    let currentEvents = events;
+    let currentMarkers: oldMarkerInformation[] = [];
     for (const eventData of currentEvents || []) {
       const index = checkIfLocationAlreadyExists(
         eventData.location.geo,
@@ -175,11 +161,22 @@ const MapComponent = () => {
           eventData,
           currentGeoLocationOfEvents
         );
-        currentMarkers = handleAddNewMarker(eventData, currentMarkers);
+        currentMarkers = oldHandleAddNewMarker(eventData, currentMarkers);
       }
     }
     setMarkers(currentMarkers);
     setGeoLocationOfEvents(currentGeoLocationOfEvents);
+  };
+  const oldHandleAddNewMarker = (
+    event: EventInfo,
+    currentMarkers: oldMarkerInformation[]
+  ) => {
+    const location = event.location.geo;
+    const marker: oldMarkerInformation = {
+      location: location,
+      event: [event],
+    };
+    return currentMarkers ? [...currentMarkers, marker] : [marker];
   };
 
   const handleMapBoundChange = async () => {
@@ -195,7 +192,7 @@ const MapComponent = () => {
         longitudeLow: southwest.lng(),
       };
       try {
-        const eventResponse: EventInfo[] | undefined = await get({
+        const eventResponse: GeoCoordinates[] | undefined = await get({
           url: `http://localhost:8080/concertData/events?latitudeHigh=${encodeURIComponent(
             mapBounds.latitudeHigh
           )}&latitudeLow=${encodeURIComponent(
@@ -204,7 +201,7 @@ const MapComponent = () => {
             mapBounds.longitudeHigh
           )}&longitudeHigh=${encodeURIComponent(mapBounds.longitudeLow)}`,
         });
-        handleEventDataImport(eventResponse);
+        handleGeoCoordinatesImport(eventResponse);
       } catch (error) {
         console.error(error);
       }
@@ -227,33 +224,35 @@ const MapComponent = () => {
   };
 
   const renderInfoWindow = (marker: MarkerInformation) => {
-    return (
-      <InfoWindow
-        position={{
-          lat: marker.location.latitude,
-          lng: marker.location.longitude,
-        }}
-        onCloseClick={() => {
-          setInfoWindowDisplaying(false);
-          setSelectedMarker(undefined);
-        }}
-      >
-        <InfoWindowContent eventInfo={marker.event} />
-      </InfoWindow>
-    );
+    return null;
+    // return (
+    //   <InfoWindow
+    //     position={{
+    //       lat: marker.location.latitude,
+    //       lng: marker.location.longitude,
+    //     }}
+    //     onCloseClick={() => {
+    //       setInfoWindowDisplaying(false);
+    //       setSelectedMarker(undefined);
+    //     }}
+    //   >
+    //     <InfoWindowContent eventInfo={marker.event} />
+    //   </InfoWindow>
+    // );
   };
 
   const handleMarkerClick = (marker: MarkerInformation) => {
-    setInfoWindowDisplaying(true);
-    setSelectedMarker(marker);
+    // setInfoWindowDisplaying(true);
+    // setSelectedMarker(marker);
   };
 
   const handleTimeFilterClick = (dayLength: number) => {
     const currentDate = new Date();
+    console.log(currentDate);
     const startDate = currentDate.toISOString().split("T")[0];
 
     const endDate = new Date(currentDate);
-    endDate.setDate(currentDate.getDate() + dayLength - 1);
+    endDate.setDate(currentDate.getDate() + dayLength);
     const endDateString = endDate.toISOString().split("T")[0];
 
     setFilter({
@@ -262,15 +261,12 @@ const MapComponent = () => {
     });
   };
 
-  const updateMarkers = () => {
-    // Implement your logic for updating markers if needed
-  };
 
   return (
     <>
-      <button onClick={() => handleTimeFilterClick(1)}>Today</button>
-      <button onClick={() => handleTimeFilterClick(3)}>Three Days</button>
-      <button onClick={handleRemoveFilterClick}>Remove Filter</button>
+      {/* <button onClick={() => handleTimeFilterClick(1)}>Today</button>
+      <button onClick={() => handleTimeFilterClick(3)}>Today</button>
+      <button onClick={() => handleRemoveFilterClick()}>Remove Filter</button> */}
       <div id="mapContainer" className="mapContainer">
         <GoogleMap
           onLoad={(map: google.maps.Map) => {
@@ -285,7 +281,7 @@ const MapComponent = () => {
           {filterSet === false
             ? markers.map((marker) => (
                 <Marker
-                  key={marker.event[0].identifier}
+                  // key={marker.event[0].identifier}
                   position={{
                     lat: marker.location.latitude,
                     lng: marker.location.longitude,
@@ -295,7 +291,7 @@ const MapComponent = () => {
               ))
             : filteredMarkers!.map((marker) => (
                 <Marker
-                  key={marker.event[0].identifier}
+                  // key={marker.event[0].identifier}
                   position={{
                     lat: marker.location.latitude,
                     lng: marker.location.longitude,

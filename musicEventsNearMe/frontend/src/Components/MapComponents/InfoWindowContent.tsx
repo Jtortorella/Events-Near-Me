@@ -12,6 +12,8 @@ const InfoWindowContent: React.FC<InfoWindowContentProps> = ({ eventInfo }) => {
   }
   const [index, setIndex] = useState<number>(0);
   const { name, startDate, performer, location } = eventInfo[index];
+  console.log(startDate)
+
   function handlePreviousButtonClick(): void {
     setIndex((prev) => prev - 1);
   }
