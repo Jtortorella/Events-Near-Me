@@ -1,5 +1,6 @@
 package musicEventsNearMe.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -12,13 +13,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import musicEventsNearMe.Interfaces.BaseEntity;
 import musicEventsNearMe.dto.LocationDTO.Place;
 import musicEventsNearMe.dto.MusicEventDTO.ExternalIdentifier;
 
 @Data
 @Entity
 @Table(name = "performers")
-public class PerformerDTO {
+public class PerformerDTO implements BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -58,4 +60,7 @@ public class PerformerDTO {
     private int performanceRank;
     private boolean isHeadliner;
     private boolean dateIsConfirmed;
+
+    private LocalDateTime timeRecordWasEntered;
+
 }

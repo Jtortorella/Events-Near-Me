@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import musicEventsNearMe.dto.MusicEventDTO;
 import musicEventsNearMe.entities.MapBounds;
-import musicEventsNearMe.entities.MusicEvent;
 import musicEventsNearMe.services.ConcertDataService;
 
 @RestController
@@ -22,7 +23,7 @@ public class ConcertDataController {
     private ConcertDataService concertDataService;
 
     @GetMapping("/events")
-    public ResponseEntity<List<MusicEvent>> getEvents(@ModelAttribute MapBounds mapBounds) {
+    public ResponseEntity<List<MusicEventDTO>> getEvents(@ModelAttribute MapBounds mapBounds) {
         return concertDataService.getConcertDataForMap(mapBounds);
     }
 
