@@ -1,34 +1,44 @@
 package musicEventsNearMe.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import musicEventsNearMe.dto.LocationDTO;
+import musicEventsNearMe.entities.MusicEvent.Location;
 import musicEventsNearMe.repositories.LocationRepository;
-
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import musicEventsNearMe.utilities.DataUtilities;
 
 @Service
 public class LocationService {
 
     @Autowired
-    LocationRepository locationRepository;
+    private LocationRepository locationRepository;
 
-    public Long saveLocationAndReturnId(LocationDTO location) {
-        long index = checkForDuplicateData(location);
-        if (index == -1l) {
-            index = locationRepository.saveAndFlush(location).getId();
-        }
-        return index;
+    @Autowired
+    DataUtilities dataUtilities;
+
+    public boolean checkIfEntityExists(Location location) {
+        return dataUtilities.checkForDuplicateDataAndReturnBoolean(
+                dataUtilities.getDTOEntityFromObject(location, LocationDTO.class), locationRepository);
     }
 
-    public Long checkForDuplicateData(LocationDTO location) {
-        Optional<LocationDTO> found = locationRepository.findByIdentifier(location.getIdentifier());
-        if (found.isPresent()) {
-            return found.get().getId();
-        }
-        return -1l;
+    public boolean checkIfEntityNeedsUpdating(LocationDTO newLocation, LocationDTO oldLocation) {
+        return dataUtilities.shouldUpdate(newLocation, oldLocation);
     }
 
+    public Long saveEntityAndReturnId(LocationDTO location) {
+        return locationRepository.saveAndFlush(location).getId();
+    }
+
+    public LocationDTO getExistingLocation(Location location) {
+        return locationRepository.findByIdentifier(location.getIdentifier()).orElse(null);
+    }
+
+    public LocationDTO getLocationDTO(Location location) {
+        return dataUtilities.getDTOEntityFromObject(location, LocationDTO.class);
+    }
+
+    public Long updateEntityAndReturnId(LocationDTO newLocation, LocationDTO oldLocation) {
+        return dataUtilities.updateEntity(newLocation, oldLocation, locationRepository).getId();
+    }
 }

@@ -181,6 +181,11 @@ const MapComponent = () => {
 
   const handleMapBoundChange = async () => {
     setIsLoading(true);
+    // Get the current date and time
+  const currentDate = new Date();
+
+  // Subtract 5 hours
+    currentDate.setHours(currentDate.getHours() - 5);
     const bounds = mapRef.current?.getBounds();
     if (bounds) {
       const northeast = bounds.getNorthEast();
@@ -190,8 +195,13 @@ const MapComponent = () => {
         latitudeLow: southwest.lat(),
         longitudeHigh: northeast.lng(),
         longitudeLow: southwest.lng(),
+        startDate: currentDate.toISOString().slice(0, 19),
+        endDate: filter?.endDate || new Date().toISOString().slice(0, 10) + 'T23:59:59',
       };
       try {
+        console.log(mapBounds.endDate.toString());
+        console.log(mapBounds.startDate.toString());
+  
         const eventResponse: GeoCoordinates[] | undefined = await get({
           url: `http://localhost:8080/concertData/events?latitudeHigh=${encodeURIComponent(
             mapBounds.latitudeHigh
@@ -199,7 +209,13 @@ const MapComponent = () => {
             mapBounds.latitudeLow
           )}&longitudeLow=${encodeURIComponent(
             mapBounds.longitudeHigh
-          )}&longitudeHigh=${encodeURIComponent(mapBounds.longitudeLow)}`,
+          )}&longitudeHigh=${encodeURIComponent(
+            mapBounds.longitudeLow
+          )}&startDate=${encodeURI(
+            mapBounds.startDate.toString()
+          )}&endDate=${encodeURI(
+            mapBounds.endDate.toString()
+          )}`,
         });
         handleGeoCoordinatesImport(eventResponse);
       } catch (error) {
@@ -207,6 +223,7 @@ const MapComponent = () => {
       }
     }
   };
+  
 
   async function handleDefaultCenter(): Promise<
     google.maps.LatLng | undefined

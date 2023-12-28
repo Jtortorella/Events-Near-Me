@@ -2,11 +2,9 @@ package musicEventsNearMe.repositories;
 
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import musicEventsNearMe.dto.PerformerDTO;
+import musicEventsNearMe.interfaces.BaseRepository;
 
-public interface PerformerRepository extends JpaRepository<PerformerDTO, Long> {
+public interface PerformerRepository extends BaseRepository<PerformerDTO> {
     Optional<PerformerDTO> findByIdentifier(String identifier);
-
 }

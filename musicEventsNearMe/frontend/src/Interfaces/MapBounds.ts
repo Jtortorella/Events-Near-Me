@@ -3,5 +3,7 @@ export interface MapBounds {
     latitudeLow: number;
     longitudeHigh: number;
     longitudeLow: number;
+    startDate: String;
+    endDate: String;
 }
   

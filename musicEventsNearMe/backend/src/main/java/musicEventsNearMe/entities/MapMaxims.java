@@ -5,11 +5,13 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MapBounds {
+public class MapMaxims {
     private double latitudeHigh;
     private double latitudeLow;
     private double longitudeHigh;
     private double longitudeLow;
+    private String startDate;
+    private String endDate;
 
     public void checkForNegatives() {
         double temporaryVariable = 0.0;

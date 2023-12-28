@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS performers (
     foundingLocationId BIGINT,
     foundingDate VARCHAR(255),
     genre JSON,
-    eventsId JSON,
     bandOrMusician VARCHAR(255),
     numUpcomingEvents INT,
     performanceDate VARCHAR(255),
@@ -24,6 +23,14 @@ CREATE TABLE IF NOT EXISTS performers (
     isHeadliner BOOLEAN,
     dateIsConfirmed BOOLEAN,
     timeRecordWasEntered DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS performances (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    performer_id BIGINT,
+    event_id BIGINT,
+    FOREIGN KEY (performer_id) REFERENCES performers(id),
+    FOREIGN KEY (event_id) REFERENCES music_events(id)
 );
 
 -- Table: music_events
@@ -36,7 +43,7 @@ CREATE TABLE IF NOT EXISTS music_events (
     datePublished VARCHAR(255),
     dateModified VARCHAR(255),
     eventStatus VARCHAR(255),
-    startDate VARCHAR(255),
+    startDate DATETIME(255),
     endDate VARCHAR(255),
     previousStartDate VARCHAR(255),
     doorTime VARCHAR(255),
@@ -49,7 +56,6 @@ CREATE TABLE IF NOT EXISTS music_events (
     headlinerInSupport BOOLEAN,
     customTitle VARCHAR(255),
     subtitle VARCHAR(255),
-    performers_id VARBINARY(1028), -- Add this line to include the new column
     timeRecordWasEntered DATETIME
 );
 
@@ -172,16 +178,3 @@ CREATE TABLE IF NOT EXISTS places (
     placeType VARCHAR(255),
     name VARCHAR(255)
 );
-
--- Foreign Key Constraints
-ALTER TABLE performers ADD CONSTRAINT fk_performers_foundingLocation FOREIGN KEY (foundingLocationId) REFERENCES places(id);
-ALTER TABLE music_events ADD CONSTRAINT fk_music_events_location FOREIGN KEY (locationId) REFERENCES locations(id);
-ALTER TABLE offers ADD CONSTRAINT fk_offers_priceSpecification FOREIGN KEY (priceSpecificationId) REFERENCES price_specifications(id);
-ALTER TABLE offers ADD CONSTRAINT fk_offers_seller FOREIGN KEY (sellerId) REFERENCES sellers(id);
-ALTER TABLE locations ADD CONSTRAINT fk_locations_address FOREIGN KEY (addressId) REFERENCES addresses(id);
-ALTER TABLE locations ADD CONSTRAINT fk_locations_geo FOREIGN KEY (geoId) REFERENCES geo_coordinates(id);
-ALTER TABLE locations ADD CONSTRAINT fk_locations_externalIdentifiers FOREIGN KEY (externalIdentifiersId) REFERENCES external_identifiers(id);
-ALTER TABLE addresses ADD CONSTRAINT fk_addresses_addressRegion FOREIGN KEY (addressRegionId) REFERENCES address_regions(id);
-ALTER TABLE addresses ADD CONSTRAINT fk_addresses_addressCountry FOREIGN KEY (addressCountryId) REFERENCES address_countries(id);
-
--- End of Script

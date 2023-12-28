@@ -2,11 +2,13 @@ package musicEventsNearMe.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,7 +19,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import musicEventsNearMe.Interfaces.BaseEntity;
+import musicEventsNearMe.interfaces.BaseEntity;
 
 @Data
 @Entity
@@ -38,14 +40,14 @@ public class MusicEventDTO implements BaseEntity {
     private String datePublished;
     private String dateModified;
     private String eventStatus;
-    private String startDate;
-    private String endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String previousStartDate;
     private String doorTime;
 
     private Long locationId;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Offer> offers;
 
     private List<Long> performersId;
@@ -55,7 +57,7 @@ public class MusicEventDTO implements BaseEntity {
     private String promoImage;
     private String eventType;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> streamIds;
 
     private boolean headlinerInSupport;
@@ -66,6 +68,37 @@ public class MusicEventDTO implements BaseEntity {
     @PrePersist
     private void beforePersist() {
         timeRecordWasEntered = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        MusicEventDTO that = (MusicEventDTO) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(identifier, that.identifier) &&
+                Objects.equals(url, that.url) &&
+                Objects.equals(image, that.image) &&
+                Objects.equals(datePublished, that.datePublished) &&
+                Objects.equals(dateModified, that.dateModified) &&
+                Objects.equals(eventStatus, that.eventStatus) &&
+                Objects.equals(startDate, that.startDate) &&
+                Objects.equals(endDate, that.endDate) &&
+                Objects.equals(previousStartDate, that.previousStartDate) &&
+                Objects.equals(doorTime, that.doorTime) &&
+                Objects.equals(locationId, that.locationId) &&
+                Objects.equals(offers, that.offers) &&
+                Objects.equals(performersId, that.performersId) &&
+                Objects.equals(eventAttendanceMode, that.eventAttendanceMode) &&
+                Objects.equals(isAccessibleForFree, that.isAccessibleForFree) &&
+                Objects.equals(promoImage, that.promoImage) &&
+                Objects.equals(eventType, that.eventType) &&
+                Objects.equals(streamIds, that.streamIds) &&
+                Objects.equals(headlinerInSupport, that.headlinerInSupport) &&
+                Objects.equals(customTitle, that.customTitle) &&
+                Objects.equals(subtitle, that.subtitle);
     }
 
     @Data
@@ -85,10 +118,10 @@ public class MusicEventDTO implements BaseEntity {
         private String dateModified;
         private String category;
 
-        @ManyToOne(cascade = CascadeType.ALL)
+        @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
         private PriceSpecification priceSpecification;
 
-        @ManyToOne(cascade = CascadeType.ALL)
+        @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
         private Seller seller;
 
         private String validFrom;
@@ -153,6 +186,11 @@ public class MusicEventDTO implements BaseEntity {
 
         private String datePublished;
         private String dateModified;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }
