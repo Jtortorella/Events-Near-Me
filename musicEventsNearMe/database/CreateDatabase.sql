@@ -74,21 +74,6 @@ CREATE TABLE IF NOT EXISTS offers (
     validFrom VARCHAR(255)
 );
 
--- Table: url_types
-CREATE TABLE IF NOT EXISTS url_types (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    urlType VARCHAR(255),
-    identifier VARCHAR(255),
-    url VARCHAR(255)
-);
-
--- Table: external_identifiers
-CREATE TABLE IF NOT EXISTS external_identifiers (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    source VARCHAR(255),
-    identifier VARCHAR(255)
-);
-
 -- Table: price_specifications
 CREATE TABLE IF NOT EXISTS price_specifications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -127,7 +112,6 @@ CREATE TABLE IF NOT EXISTS locations (
     eventsId JSON,
     isPermanentlyClosed BOOLEAN,
     numUpcomingEvents INT,
-    externalIdentifiersId JSON,
     timeRecordWasEntered DATETIME
 );
 
@@ -172,9 +156,3 @@ CREATE TABLE IF NOT EXISTS address_regions (
     alternateName VARCHAR(255)
 );
 
--- Table: places
-CREATE TABLE IF NOT EXISTS places (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    placeType VARCHAR(255),
-    name VARCHAR(255)
-);

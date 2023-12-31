@@ -3,7 +3,6 @@ package musicEventsNearMe.interfaces;
 import java.time.LocalDateTime;
 
 public interface BaseEntity {
-
     Long getId();
 
     void setId(Long id);

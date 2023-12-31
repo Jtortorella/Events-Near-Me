@@ -1,6 +1,7 @@
 import React, { createContext, useState, ReactNode } from "react";
 import { EventInfo, GeoCoordinates } from "../Interfaces/AppInterfaces";
 import { RemoveDuplicatesBetweenTwoArrays } from "../Services/CheckForDuplicates";
+import { GeoCoordinatesResponse } from "../Interfaces/ApiResponse";
 export interface ConcertDataContextProps {
   events: EventInfo[] | null,
   locations: GeoCoordinates[] | null,
@@ -39,7 +40,7 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
     });
   };
 
-  const handleGeoCoordinatesImport = (newCoordinates: GeoCoordinates[]) => {
+  const handleGeoCoordinatesImport = (newCoordinates: GeoCoordinatesResponse[]) => {
     setLocations((prevCoordinates: GeoCoordinates[] | null) => {
       if (prevCoordinates) {
         return RemoveDuplicatesBetweenTwoArrays(newCoordinates, prevCoordinates);

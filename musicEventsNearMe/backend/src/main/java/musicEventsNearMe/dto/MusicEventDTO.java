@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -50,8 +49,6 @@ public class MusicEventDTO implements BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Offer> offers;
 
-    private List<Long> performersId;
-
     private String eventAttendanceMode;
     private boolean isAccessibleForFree;
     private String promoImage;
@@ -90,12 +87,10 @@ public class MusicEventDTO implements BaseEntity {
                 Objects.equals(doorTime, that.doorTime) &&
                 Objects.equals(locationId, that.locationId) &&
                 Objects.equals(offers, that.offers) &&
-                Objects.equals(performersId, that.performersId) &&
                 Objects.equals(eventAttendanceMode, that.eventAttendanceMode) &&
                 Objects.equals(isAccessibleForFree, that.isAccessibleForFree) &&
                 Objects.equals(promoImage, that.promoImage) &&
                 Objects.equals(eventType, that.eventType) &&
-                Objects.equals(streamIds, that.streamIds) &&
                 Objects.equals(headlinerInSupport, that.headlinerInSupport) &&
                 Objects.equals(customTitle, that.customTitle) &&
                 Objects.equals(subtitle, that.subtitle);
@@ -125,33 +120,31 @@ public class MusicEventDTO implements BaseEntity {
         private Seller seller;
 
         private String validFrom;
-    }
 
-    @Data
-    @Entity
-    @Table(name = "url_types")
-    public static class UrlType {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            Offer offer = (Offer) o;
+            return Objects.equals(name, offer.name) &&
+                    Objects.equals(identifier, offer.identifier) &&
+                    Objects.equals(url, offer.url) &&
+                    Objects.equals(image, offer.image) &&
+                    Objects.equals(datePublished, offer.datePublished) &&
+                    Objects.equals(dateModified, offer.dateModified) &&
+                    Objects.equals(category, offer.category) &&
+                    Objects.equals(priceSpecification, offer.priceSpecification) &&
+                    Objects.equals(seller, offer.seller) &&
+                    Objects.equals(validFrom, offer.validFrom);
+        }
 
-        private String urlType;
-        private String identifier;
-        private String url;
-    }
+        @Override
+        public int hashCode() {
+            return Objects.hash(
+                    id, name, identifier, url, image, datePublished, dateModified,
+                    category, priceSpecification, seller, validFrom);
+        }
 
-    @Data
-    @Entity
-    @Table(name = "external_identifiers")
-    public static class ExternalIdentifier {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-        @Column(columnDefinition = "VARCHAR(255)") // Adjust the column definition as needed
-        private String source;
-        @Column(columnDefinition = "VARCHAR(255)") // Adjust the column definition as needed
-
-        private String identifier;
     }
 
     @Data
@@ -167,6 +160,25 @@ public class MusicEventDTO implements BaseEntity {
         private double maxPrice;
         private double price;
         private String priceCurrency;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            PriceSpecification that = (PriceSpecification) o;
+            return Objects.equals(priceType, that.priceType) &&
+                    Double.compare(that.minPrice, minPrice) == 0 &&
+                    Double.compare(that.maxPrice, maxPrice) == 0 &&
+                    Double.compare(that.price, price) == 0 &&
+                    Objects.equals(priceCurrency, that.priceCurrency);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, priceType, minPrice, maxPrice, price, priceCurrency);
+        }
     }
 
     @Data
@@ -186,11 +198,47 @@ public class MusicEventDTO implements BaseEntity {
 
         private String datePublished;
         private String dateModified;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+
+            // Check if the object is an instance of Seller
+            if (!(o instanceof Seller)) {
+                return false;
+            }
+
+            Seller seller = (Seller) o;
+
+            return Objects.equals(sellerType, seller.sellerType) &&
+                    Objects.equals(identifier, seller.identifier) &&
+                    Objects.equals(disambiguatingDescription, seller.disambiguatingDescription) &&
+                    Objects.equals(name, seller.name) &&
+                    Objects.equals(url, seller.url) &&
+                    Objects.equals(image, seller.image) &&
+                    Objects.equals(datePublished, seller.datePublished) &&
+                    Objects.equals(dateModified, seller.dateModified);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, sellerType, identifier, disambiguatingDescription, name, url, image, datePublished,
+                    dateModified);
+        }
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(
+                id, name, identifier, url, image, datePublished, dateModified,
+                eventStatus, startDate, endDate, previousStartDate, doorTime,
+                locationId, offers, eventAttendanceMode, isAccessibleForFree,
+                promoImage, eventType, streamIds, headlinerInSupport, customTitle,
+                subtitle);
     }
 
 }

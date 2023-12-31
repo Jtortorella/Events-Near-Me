@@ -17,15 +17,6 @@ public class LocationService {
     @Autowired
     DataUtilities dataUtilities;
 
-    public boolean checkIfEntityExists(Location location) {
-        return dataUtilities.checkForDuplicateDataAndReturnBoolean(
-                dataUtilities.getDTOEntityFromObject(location, LocationDTO.class), locationRepository);
-    }
-
-    public boolean checkIfEntityNeedsUpdating(LocationDTO newLocation, LocationDTO oldLocation) {
-        return dataUtilities.shouldUpdate(newLocation, oldLocation);
-    }
-
     public Long saveEntityAndReturnId(LocationDTO location) {
         return locationRepository.saveAndFlush(location).getId();
     }

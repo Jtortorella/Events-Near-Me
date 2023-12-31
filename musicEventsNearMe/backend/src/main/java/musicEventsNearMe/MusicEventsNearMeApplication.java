@@ -5,13 +5,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import musicEventsNearMe.services.ConcertDataService;
+import musicEventsNearMe.services.DatabaseService;
 
 @SpringBootApplication
 public class MusicEventsNearMeApplication implements CommandLineRunner {
 
 	@Autowired
-	private ConcertDataService concertDataService;
+	private DatabaseService concertDataService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(MusicEventsNearMeApplication.class, args);

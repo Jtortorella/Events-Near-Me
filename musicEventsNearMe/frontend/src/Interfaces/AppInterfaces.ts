@@ -40,7 +40,6 @@
     events: EventInfo[];
     isPermanentlyClosed: boolean;
     numUpcomingEvents: number;
-    externalIdentifiers: ExternalIdentifier[];
   }
   
   export interface Address {
@@ -127,7 +126,6 @@
     events: EventInfo[];
     bandOrMusician: string;
     numUpcomingEvents: number;
-    externalIdentifiers: ExternalIdentifier[];
     performanceDate: string;
     performanceRank: number;
     isHeadliner: boolean;
@@ -139,11 +137,6 @@
     name: string;
   }
   
-  export interface ExternalIdentifier {
-    source: string;
-    identifier: string;
-  }
-
   
   export interface UrlType {
     type: string;

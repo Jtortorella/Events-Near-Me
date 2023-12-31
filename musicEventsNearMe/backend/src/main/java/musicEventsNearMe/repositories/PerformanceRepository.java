@@ -17,5 +17,4 @@ public interface PerformanceRepository extends JpaRepository<PerformanceDTO, Lon
     Optional<PerformanceDTO> findByMusicEventIdAndPerformerId(Long musicEventId, Long performerId);
 
     List<PerformanceDTO> findByMusicEventId(Long musicEventId);
-
 }

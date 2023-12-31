@@ -1,10 +1,10 @@
 package musicEventsNearMe.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import musicEventsNearMe.dto.PerformerDTO;
 import musicEventsNearMe.entities.MusicEvent.Performer;
@@ -13,18 +13,17 @@ import musicEventsNearMe.utilities.DataUtilities;
 
 @Service
 public class PerformerService {
-    @Autowired
-    PerformerRepository performerRepository;
 
     @Autowired
-    DataUtilities dataUtilities;
+    private PerformerRepository performerRepository;
 
-    public long checkForDuplicateData(PerformerDTO performer) {
-        Optional<PerformerDTO> found = performerRepository.findByIdentifier(performer.getIdentifier());
-        if (found.isPresent()) {
-            return found.get().getId();
-        }
-        return -1l;
+    @Autowired
+    private DataUtilities dataUtilities;
+
+    public long checkForDuplicateData(PerformerDTO performerDTO) {
+        return performerRepository.findByIdentifier(performerDTO.getIdentifier())
+                .map(PerformerDTO::getId)
+                .orElse(-1L);
     }
 
     public PerformerDTO findById(Long id) {
@@ -32,44 +31,35 @@ public class PerformerService {
     }
 
     public boolean checkIfEntityExists(Performer performer) {
-        return dataUtilities.checkForDuplicateDataAndReturnBoolean(
-                dataUtilities.getDTOEntityFromObject(performer, PerformerDTO.class), performerRepository);
+        PerformerDTO performerDTO = dataUtilities.getDTOEntityFromObject(performer, PerformerDTO.class);
+        return performerRepository.findByIdentifier(performerDTO.getIdentifier()).isPresent();
     }
 
-    public boolean checkIfEntityNeedsUpdating(PerformerDTO newPerformer, PerformerDTO oldPerformer) {
-        return dataUtilities.shouldUpdate(newPerformer, oldPerformer);
+    public Long saveEntityAndReturnId(PerformerDTO performerDTO) {
+        return performerRepository.saveAndFlush(performerDTO).getId();
     }
 
-    public Long saveEntityAndReturnId(PerformerDTO Performer) {
-        return performerRepository.saveAndFlush(Performer).getId();
+    public List<PerformerDTO> getExistingPerformers(List<Performer> performers) {
+        return performers.stream()
+                .map(this::getExistingPerformer)
+                .collect(Collectors.toList());
     }
 
-    public ArrayList<PerformerDTO> getExistingPerformers(List<Performer> performers) {
-        ArrayList<PerformerDTO> list = new ArrayList<>();
-        for (Performer performer : performers) {
-            list.add(getExistingPerformer(performer));
-        }
-        return list;
-
+    public PerformerDTO getExistingPerformer(Performer performer) {
+        return performerRepository.findByIdentifier(performer.getIdentifier()).orElse(null);
     }
 
-    public PerformerDTO getExistingPerformer(Performer Performer) {
-        return performerRepository.findByIdentifier(Performer.getIdentifier()).orElse(null);
+    public List<PerformerDTO> getPerformersDTO(List<Performer> performers) {
+        return performers.stream()
+                .map(this::getPerformerDTO)
+                .collect(Collectors.toList());
     }
 
-    public ArrayList<PerformerDTO> getPerformersDTO(List<Performer> performers) {
-        ArrayList<PerformerDTO> list = new ArrayList<>();
-        for (Performer performer : performers) {
-            list.add(getPerformerDTO(performer));
-        }
-        return list;
+    public PerformerDTO getPerformerDTO(Performer performer) {
+        return dataUtilities.getDTOEntityFromObject(performer, PerformerDTO.class);
     }
 
-    public PerformerDTO getPerformerDTO(Performer Performer) {
-        return dataUtilities.getDTOEntityFromObject(Performer, PerformerDTO.class);
-    }
-
-    public Long updateEntityAndReturnId(PerformerDTO newPerformer, PerformerDTO oldPerformer) {
-        return dataUtilities.updateEntity(newPerformer, oldPerformer, performerRepository).getId();
+    public Long updateEntityAndReturnId(PerformerDTO newPerformerDTO, PerformerDTO oldPerformerDTO) {
+        return dataUtilities.updateEntity(newPerformerDTO, oldPerformerDTO, performerRepository).getId();
     }
 }

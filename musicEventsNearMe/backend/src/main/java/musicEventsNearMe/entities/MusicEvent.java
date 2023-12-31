@@ -54,7 +54,6 @@ public class MusicEvent {
         private List<MusicEvent> events;
         private boolean isPermanentlyClosed;
         private int numUpcomingEvents;
-        private List<ExternalIdentifier> externalIdentifiers;
     }
 
     @Data
@@ -162,7 +161,6 @@ public class MusicEvent {
         private List<MusicEvent> events;
         private String bandOrMusician;
         private int numUpcomingEvents;
-        private List<ExternalIdentifier> externalIdentifiers;
         private String performanceDate;
         private int performanceRank;
         private boolean isHeadliner;

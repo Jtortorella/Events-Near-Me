@@ -1,16 +1,19 @@
 package musicEventsNearMe.utilities;
 
 import java.lang.reflect.Type;
-import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
+
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import musicEventsNearMe.dto.MusicEventDTO;
+import musicEventsNearMe.entities.MusicEvent;
 import musicEventsNearMe.interfaces.BaseEntity;
 import musicEventsNearMe.interfaces.BaseRepository;
 
@@ -20,39 +23,31 @@ public class DataUtilities {
     private final ModelMapper modelMapper = new ModelMapper();
 
     public <D, T> D getDTOEntityFromObject(T data, Type type) {
+        if (type == MusicEventDTO.class) {
+            Converter<String, LocalDateTime> stringToLocalDateTimeConverterStartDate = new Converter<String, LocalDateTime>() {
+                @Override
+                public LocalDateTime convert(MappingContext<String, LocalDateTime> context) {
+                    if (context.getSource() == null) {
+                        return null;
+                    }
+                    String str = context.getSource();
+                    try {
+                        return LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+                    } catch (DateTimeParseException e) {
+                        return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
+                    }
+                }
+            };
+            modelMapper.addConverter(stringToLocalDateTimeConverterStartDate);
+
+            modelMapper.typeMap(MusicEvent.class, MusicEventDTO.class)
+                    .addMappings(mapping -> {
+                        mapping.using(stringToLocalDateTimeConverterStartDate)
+                                .map(MusicEvent::getStartDate, MusicEventDTO::setStartDate);
+                    });
+        }
+
         return modelMapper.map(data, type);
-    }
-
-    public <D, T> List<T> getDTOEntityFromObjectList(List<T> list, Type type) {
-        TypeToken<List<T>> typeToken = new TypeToken<List<T>>() {
-        };
-        return modelMapper.map(list, typeToken.getType());
-    }
-
-    public <T extends BaseEntity> boolean shouldUpdate(T newData, T oldData) {
-        if (oldData != null) {
-            return compareDatabaseRecordEnteredTimeAndEventsTime(newData.getDateModified(),
-                    oldData.getTimeRecordWasEntered()) &&
-                    compareDatabaseRecordEnteredTimeAndEventsTime(newData.getDatePublished(),
-                            oldData.getTimeRecordWasEntered());
-
-        }
-        return false;
-
-    }
-
-    private <T> boolean compareDatabaseRecordEnteredTimeAndEventsTime(String dt1, LocalDateTime dt2) {
-        if (dt1 != null && dt2 != null) {
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
-                LocalDateTime dateTimeOfEventTime = LocalDateTime.parse(dt1, formatter);
-                Duration duration = Duration.between(dateTimeOfEventTime, dt2);
-                return duration.isNegative();
-            } catch (DateTimeParseException ex) {
-                return false;
-            }
-        }
-        return false;
     }
 
     public <T extends BaseEntity> T checkForDuplicateDataAndReturnEntity(T entity,
@@ -65,11 +60,13 @@ public class DataUtilities {
         return repository.findByIdentifier(entity.getIdentifier()).isPresent();
     }
 
-    public <T extends BaseEntity> T updateEntity(T newEvent, T event, JpaRepository<T, Long> repository) {
-        if (newEvent != null) {
-            modelMapper.map(event, newEvent);
-            event.setTimeRecordWasEntered(LocalDateTime.now());
-            return repository.saveAndFlush(newEvent);
+    public <T extends BaseEntity> T updateEntity(T newEntity, T existingEntity, JpaRepository<T, Long> repository) {
+        if (newEntity != null && existingEntity != null) {
+            Long id = existingEntity.getId();
+            modelMapper.map(newEntity, existingEntity);
+            existingEntity.setTimeRecordWasEntered(LocalDateTime.now());
+            existingEntity.setId(id);
+            return repository.saveAndFlush(existingEntity);
         }
         return null;
     }

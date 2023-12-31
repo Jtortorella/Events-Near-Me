@@ -4,20 +4,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
-import musicEventsNearMe.dto.LocationDTO.Place;
-import musicEventsNearMe.dto.MusicEventDTO.ExternalIdentifier;
 import musicEventsNearMe.interfaces.BaseEntity;
 
 @Data
@@ -37,27 +32,11 @@ public class PerformerDTO implements BaseEntity {
     private String dateModified;
     private String performerType;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<PerformerDTO> member;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<PerformerDTO> memberOf;
-
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Place foundingLocation;
-
-    private String foundingDate;
-
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> genre;
 
-    private List<Long> eventsId;
-
     private String bandOrMusician;
     private int numUpcomingEvents;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ExternalIdentifier> externalIdentifiers;
 
     private String performanceDate;
     private int performanceRank;
@@ -85,10 +64,7 @@ public class PerformerDTO implements BaseEntity {
                 Objects.equals(datePublished, that.datePublished) &&
                 Objects.equals(dateModified, that.dateModified) &&
                 Objects.equals(performerType, that.performerType) &&
-                Objects.equals(foundingLocation, that.foundingLocation) &&
-                Objects.equals(foundingDate, that.foundingDate) &&
                 Objects.equals(genre, that.genre) &&
-                Objects.equals(eventsId, that.eventsId) &&
                 Objects.equals(bandOrMusician, that.bandOrMusician) &&
                 Objects.equals(numUpcomingEvents, that.numUpcomingEvents) &&
                 Objects.equals(performanceDate, that.performanceDate) &&

@@ -1,7 +1,6 @@
 package musicEventsNearMe.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
@@ -11,11 +10,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
-import musicEventsNearMe.dto.MusicEventDTO.ExternalIdentifier;
 import musicEventsNearMe.interfaces.BaseEntity;
 
 @Data
@@ -41,13 +38,8 @@ public class LocationDTO implements BaseEntity {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private GeoCoordinates geo;
 
-    private List<Long> eventsId;
-
     private boolean isPermanentlyClosed;
     private int numUpcomingEvents;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ExternalIdentifier> externalIdentifiers;
 
     private LocalDateTime timeRecordWasEntered;
 
@@ -72,10 +64,8 @@ public class LocationDTO implements BaseEntity {
                 Objects.equals(maximumAttendeeCapacity, that.maximumAttendeeCapacity) &&
                 Objects.equals(address, that.address) &&
                 Objects.equals(geo, that.geo) &&
-                Objects.equals(eventsId, that.eventsId) &&
                 Objects.equals(isPermanentlyClosed, that.isPermanentlyClosed) &&
-                Objects.equals(numUpcomingEvents, that.numUpcomingEvents) &&
-                Objects.equals(externalIdentifiers, that.externalIdentifiers);
+                Objects.equals(numUpcomingEvents, that.numUpcomingEvents);
     }
 
     @Data
@@ -101,6 +91,30 @@ public class LocationDTO implements BaseEntity {
         private String timezone;
         private int jamBaseMetroId;
         private int jamBaseCityId;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            Address address = (Address) o;
+            return Objects.equals(addressType, address.addressType) &&
+                    Objects.equals(streetAddress, address.streetAddress) &&
+                    Objects.equals(addressLocality, address.addressLocality) &&
+                    Objects.equals(postalCode, address.postalCode) &&
+                    Objects.equals(addressRegion, address.addressRegion) &&
+                    Objects.equals(addressCountry, address.addressCountry) &&
+                    Objects.equals(streetAddress2, address.streetAddress2) &&
+                    jamBaseMetroId == address.jamBaseMetroId &&
+                    jamBaseCityId == address.jamBaseCityId;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(addressType, streetAddress, addressLocality, postalCode,
+                    addressRegion, addressCountry, streetAddress2, timezone, jamBaseMetroId, jamBaseCityId);
+        }
     }
 
     @Data
@@ -113,6 +127,23 @@ public class LocationDTO implements BaseEntity {
         private String geoCoordinatesType;
         private double latitude;
         private double longitude;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            GeoCoordinates that = (GeoCoordinates) o;
+            return Objects.equals(geoCoordinatesType, that.geoCoordinatesType) &&
+                    Double.compare(that.latitude, latitude) == 0 &&
+                    Double.compare(that.longitude, longitude) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(geoCoordinatesType, latitude, longitude);
+        }
     }
 
     @Data
@@ -127,6 +158,24 @@ public class LocationDTO implements BaseEntity {
         private String identifier;
         private String name;
         private String alternateName;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            AddressCountry that = (AddressCountry) o;
+            return Objects.equals(addressCountryType, that.addressCountryType) &&
+                    Objects.equals(identifier, that.identifier) &&
+                    Objects.equals(name, that.name) &&
+                    Objects.equals(alternateName, that.alternateName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(addressCountryType, identifier, name, alternateName);
+        }
     }
 
     @Data
@@ -141,18 +190,24 @@ public class LocationDTO implements BaseEntity {
         private String identifier;
         private String name;
         private String alternateName;
-    }
 
-    @Data
-    @Entity
-    @Table(name = "places")
-    public static class Place {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            AddressRegion that = (AddressRegion) o;
+            return Objects.equals(addressRegionType, that.addressRegionType) &&
+                    Objects.equals(identifier, that.identifier) &&
+                    Objects.equals(name, that.name) &&
+                    Objects.equals(alternateName, that.alternateName);
+        }
 
-        private String placeType;
-        private String name;
+        @Override
+        public int hashCode() {
+            return Objects.hash(addressRegionType, identifier, name, alternateName);
+        }
     }
 
     @Override
