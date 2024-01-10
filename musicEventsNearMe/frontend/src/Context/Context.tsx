@@ -1,14 +1,15 @@
 import React, { createContext, useState, ReactNode } from "react";
-import { EventInfo, GeoCoordinates } from "../Interfaces/AppInterfaces";
+import { EventInfo, Filter, GeoCoordinates } from "../Interfaces/AppInterfaces";
 import { RemoveDuplicatesBetweenTwoArrays } from "../Services/CheckForDuplicates";
-import { GeoCoordinatesResponse } from "../Interfaces/ApiResponse";
 export interface ConcertDataContextProps {
-  events: EventInfo[] | null,
-  locations: GeoCoordinates[] | null,
-  handleEventDataImport: any,
-  handleGeoCoordinatesImport: any,
+  filter: Filter;
+  setFilter: any;
+  events: EventInfo[] | null;
+  locations: GeoCoordinates[] | null;
+  handleEventDataImport: any;
+  handleGeoCoordinatesImport: any;
   isLoading: boolean;
-  setIsLoading: any,
+  setIsLoading: any;
   isError: boolean;
   setIsError: any;
 }
@@ -21,38 +22,34 @@ interface ProviderProps {
 const Context = createContext<ConcertDataContextProps | undefined>(undefined);
 
 const Provider: React.FC<ProviderProps> = ({ children }) => {
-
   const [events, setEvents] = useState<EventInfo[] | null>(null);
   const [locations, setLocations] = useState<GeoCoordinates[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
+  const [filter, setFilter] = useState<Filter>({
+    startDate: new Date(),
+    endDate: new Date(),
+  });
 
-
-  
   const handleEventDataImport = (newEvents: EventInfo[]) => {
     setEvents((prevEvents: EventInfo[] | null) => {
       if (prevEvents) {
         return RemoveDuplicatesBetweenTwoArrays(newEvents, prevEvents);
-      }
-      else {
+      } else {
         return newEvents;
       }
     });
   };
 
-  const handleGeoCoordinatesImport = (newCoordinates: GeoCoordinatesResponse[]) => {
-    setLocations((prevCoordinates: GeoCoordinates[] | null) => {
-      if (prevCoordinates) {
-        return RemoveDuplicatesBetweenTwoArrays(newCoordinates, prevCoordinates);
-      }
-      else {
-        return newCoordinates;
-      }
-    });
+  const handleGeoCoordinatesImport = (
+    newCoordinates: GeoCoordinates[]
+  ) => {
+    setLocations(newCoordinates); 
   };
-  
 
   const contextValue: ConcertDataContextProps = {
+    filter,
+    setFilter,
     events,
     locations,
     handleEventDataImport,
@@ -65,7 +62,4 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };
 
-
 export { Context, Provider };
-
-

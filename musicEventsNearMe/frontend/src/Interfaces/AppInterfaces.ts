@@ -1,11 +1,8 @@
-
-  
    export interface EventInfo {
     name: string;
     identifier: string;
     url: string;
     image: string;
-    sameAs: UrlType[];
     datePublished: string;
     dateModified: string;
     eventStatus: string;
@@ -70,7 +67,7 @@
   }
   
    export interface GeoCoordinates {
-    type: string;
+    musicEventId: number;
     latitude: number;
     longitude: number;
   }
@@ -145,15 +142,11 @@
   }
   
   export interface MarkerInformation {
-    location: GeoCoordinates;
-  }
-
-  export interface oldMarkerInformation {
-    event: EventInfo[];
+    musicEventId: number | number[];
     location: GeoCoordinates;
   }
 
   export interface Filter {
-    startDate: string;
-    endDate: string;
+    startDate: Date;
+    endDate: Date;
   }

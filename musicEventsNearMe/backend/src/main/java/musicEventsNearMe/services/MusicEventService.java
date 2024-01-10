@@ -36,7 +36,10 @@ public class MusicEventService {
                         .map(response -> new GeoCoordinatesResponeObject((Long) response[0], (double) response[1],
                                 (double) response[2]))
                         .collect(Collectors.toList()));
+    }
 
+    public ResponseEntity<List<Object>> getEventDetailsById(Long id) {
+        return ResponseEntity.ok().body(musicEventRepository.findEventDetailsById(id));
     }
 
     public LocalDateTime convertToLocalDateTime(String str) {

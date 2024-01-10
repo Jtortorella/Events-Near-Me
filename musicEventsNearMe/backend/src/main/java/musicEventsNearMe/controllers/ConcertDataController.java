@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +26,11 @@ public class ConcertDataController {
     @GetMapping("/events")
     public ResponseEntity<List<GeoCoordinatesResponeObject>> getEvents(@ModelAttribute MapMaxims mapBounds) {
         return musicEventService.getConcertDataForMap(mapBounds);
+    }
+
+    @GetMapping("/event/{id}")
+    public ResponseEntity<List<Object>> getEvents(@PathVariable Long id) {
+        return musicEventService.getEventDetailsById(id);
     }
 
 }
