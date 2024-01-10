@@ -1,4 +1,4 @@
-Application to show events near you.
+Application to show music events near you.
 
 Utilizes:
   Google API
