@@ -29,7 +29,7 @@ public class ConcertDataController {
     }
 
     @GetMapping("/event/{id}")
-    public ResponseEntity<List<Object>> getEvents(@PathVariable Long id) {
+    public ResponseEntity<Object> getEvents(@PathVariable Long id) {
         return musicEventService.getEventDetailsById(id);
     }
 

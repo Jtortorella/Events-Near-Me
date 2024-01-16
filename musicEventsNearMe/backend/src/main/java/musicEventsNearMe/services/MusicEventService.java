@@ -38,7 +38,7 @@ public class MusicEventService {
                         .collect(Collectors.toList()));
     }
 
-    public ResponseEntity<List<Object>> getEventDetailsById(Long id) {
+    public ResponseEntity<Object> getEventDetailsById(Long id) {
         return ResponseEntity.ok().body(musicEventRepository.findEventDetailsById(id));
     }
 

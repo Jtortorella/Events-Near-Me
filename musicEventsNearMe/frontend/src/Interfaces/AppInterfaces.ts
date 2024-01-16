@@ -1,27 +1,21 @@
-   export interface EventInfo {
-    name: string;
-    identifier: string;
-    url: string;
-    image: string;
-    datePublished: string;
-    dateModified: string;
-    eventStatus: string;
-    startDate: string;
-    endDate: string;
-    previousStartDate: string;
-    doorTime: string;
-    location: Location;
-    offers: Offer[];
-    performer: Performer[];
-    eventAttendanceMode: string;
-    isAccessibleForFree: boolean;
-    promoImage: string;
-    eventType: string;
-    streamIds: string[];
-    headlinerInSupport: boolean;
-    customTitle: string;
-    subtitle: string;
-  }
+export interface EventInfo {
+  name: string;
+  url: string;
+  location_name: string;
+  location_url: string;
+  performers_details: string;
+  start_date: string;
+  image: string;
+  street_address: string;
+  end_date: string;
+  promo_image: string | null;
+  door_time: string;
+  postal_code: string;
+  address_locality: string;
+  event_status: string;
+  is_accessible_for_free: boolean;
+  location_id: string;
+}
   
    export interface Location {
     name: string;
@@ -107,26 +101,10 @@
   }
   
   export interface Performer {
+    id: string;
     name: string;
-    identifier: string;
     url: string;
-    image: string;
-    sameAs: UrlType[];
-    datePublished: string;
-    dateModified: string;
-    type: string;
-    member: Performer[];
-    memberOf: Performer[];
-    foundingLocation: Place;
-    foundingDate: string;
-    genre: string[];
-    events: EventInfo[];
-    bandOrMusician: string;
     numUpcomingEvents: number;
-    performanceDate: string;
-    performanceRank: number;
-    isHeadliner: boolean;
-    dateIsConfirmed: boolean;
   }
   
   export interface Place {

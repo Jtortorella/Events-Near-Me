@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "./DayOfWeekComponent.css"
+import "./DayOfWeekComponent.css";
 interface DayOfWeekComponentProps {
+  className: any;
   date: Date;
   handleDayFilterChange: any;
 }
@@ -19,20 +20,19 @@ const DayOfWeekComponent: React.FC<DayOfWeekComponentProps> = (props) => {
 
   const handleDayFilterChange = () => {
     props.handleDayFilterChange(props.date);
+    
   };
 
   return (
-      <button onClick={handleDayFilterChange}>
-            <div className="day-of-week-container">
-
+    <button onClick={handleDayFilterChange} className={props.className}>
+      <div className="day-of-week-container">
         <div className="day-of-week-text">
           {formattedDate}
           <br />
           {formattedMonth} {formattedDay}
         </div>
-        </div>
-
-      </button>
+      </div>
+    </button>
   );
 };
 
