@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException;
 
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MappingContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class DataUtilities {
     private final ModelMapper modelMapper = new ModelMapper();
 
     public <D, T> D getDTOEntityFromObject(T data, Type type) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
         if (type == MusicEventDTO.class) {
             Converter<String, LocalDateTime> stringToLocalDateTimeConverterStartDate = new Converter<String, LocalDateTime>() {
                 @Override
@@ -46,7 +49,6 @@ public class DataUtilities {
                                 .map(MusicEvent::getStartDate, MusicEventDTO::setStartDate);
                     });
         }
-
         return modelMapper.map(data, type);
     }
 

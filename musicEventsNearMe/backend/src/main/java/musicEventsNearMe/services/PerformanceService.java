@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import musicEventsNearMe.baseRepositories.PerformanceRepository;
 import musicEventsNearMe.dto.PerformanceDTO;
-import musicEventsNearMe.repositories.PerformanceRepository;
 
 @Service
 public class PerformanceService {

@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import musicEventsNearMe.baseRepositories.PerformerRepository;
 import musicEventsNearMe.dto.PerformerDTO;
 import musicEventsNearMe.entities.MusicEvent.Performer;
-import musicEventsNearMe.repositories.PerformerRepository;
 import musicEventsNearMe.utilities.DataUtilities;
 
 @Service

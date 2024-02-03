@@ -1,4 +1,4 @@
-package musicEventsNearMe.repositories;
+package musicEventsNearMe.baseRepositories;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

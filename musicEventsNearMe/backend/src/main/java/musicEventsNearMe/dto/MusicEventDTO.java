@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -29,7 +30,7 @@ public class MusicEventDTO implements BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long music_event_id;
 
     private String name;
     private String identifier;
@@ -46,7 +47,7 @@ public class MusicEventDTO implements BaseEntity {
 
     private Long locationId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "musicEventDTO", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Offer> offers;
 
     private String eventAttendanceMode;
@@ -101,25 +102,25 @@ public class MusicEventDTO implements BaseEntity {
     @Table(name = "offers")
     public static class Offer {
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
-
         private String name;
         private String identifier;
         private String url;
-        private String image;
-
         private String datePublished;
         private String dateModified;
         private String category;
+        private String validFrom;
 
-        @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+        @ManyToOne
+        @JoinColumn(name = "music_event_id")
+        private MusicEventDTO musicEventDTO;
+
+        @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
         private PriceSpecification priceSpecification;
 
-        @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+        @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
         private Seller seller;
-
-        private String validFrom;
 
         @Override
         public boolean equals(Object o) {
@@ -129,7 +130,6 @@ public class MusicEventDTO implements BaseEntity {
             return Objects.equals(name, offer.name) &&
                     Objects.equals(identifier, offer.identifier) &&
                     Objects.equals(url, offer.url) &&
-                    Objects.equals(image, offer.image) &&
                     Objects.equals(datePublished, offer.datePublished) &&
                     Objects.equals(dateModified, offer.dateModified) &&
                     Objects.equals(category, offer.category) &&
@@ -141,7 +141,7 @@ public class MusicEventDTO implements BaseEntity {
         @Override
         public int hashCode() {
             return Objects.hash(
-                    id, name, identifier, url, image, datePublished, dateModified,
+                    id, name, identifier, url, datePublished, dateModified,
                     category, priceSpecification, seller, validFrom);
         }
 
@@ -152,12 +152,8 @@ public class MusicEventDTO implements BaseEntity {
     @Table(name = "price_specifications")
     public static class PriceSpecification {
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
-
-        private String priceType;
-        private double minPrice;
-        private double maxPrice;
         private double price;
         private String priceCurrency;
 
@@ -168,16 +164,13 @@ public class MusicEventDTO implements BaseEntity {
             if (o == null || getClass() != o.getClass())
                 return false;
             PriceSpecification that = (PriceSpecification) o;
-            return Objects.equals(priceType, that.priceType) &&
-                    Double.compare(that.minPrice, minPrice) == 0 &&
-                    Double.compare(that.maxPrice, maxPrice) == 0 &&
-                    Double.compare(that.price, price) == 0 &&
+            return Double.compare(that.price, price) == 0 &&
                     Objects.equals(priceCurrency, that.priceCurrency);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, priceType, minPrice, maxPrice, price, priceCurrency);
+            return Objects.hash(id, price, priceCurrency);
         }
     }
 
@@ -186,18 +179,10 @@ public class MusicEventDTO implements BaseEntity {
     @Table(name = "sellers")
     public static class Seller {
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
-
-        private String sellerType;
         private String identifier;
-        private String disambiguatingDescription;
         private String name;
-        private String url;
-        private String image;
-
-        private String datePublished;
-        private String dateModified;
 
         @Override
         public boolean equals(Object o) {
@@ -213,20 +198,13 @@ public class MusicEventDTO implements BaseEntity {
 
             Seller seller = (Seller) o;
 
-            return Objects.equals(sellerType, seller.sellerType) &&
-                    Objects.equals(identifier, seller.identifier) &&
-                    Objects.equals(disambiguatingDescription, seller.disambiguatingDescription) &&
-                    Objects.equals(name, seller.name) &&
-                    Objects.equals(url, seller.url) &&
-                    Objects.equals(image, seller.image) &&
-                    Objects.equals(datePublished, seller.datePublished) &&
-                    Objects.equals(dateModified, seller.dateModified);
+            return Objects.equals(identifier, seller.identifier) &&
+                    Objects.equals(name, seller.name);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, sellerType, identifier, disambiguatingDescription, name, url, image, datePublished,
-                    dateModified);
+            return Objects.hash(id, identifier, name);
         }
 
     }
@@ -234,11 +212,21 @@ public class MusicEventDTO implements BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(
-                id, name, identifier, url, image, datePublished, dateModified,
+                music_event_id, name, identifier, url, image, datePublished, dateModified,
                 eventStatus, startDate, endDate, previousStartDate, doorTime,
                 locationId, offers, eventAttendanceMode, isAccessibleForFree,
                 promoImage, eventType, streamIds, headlinerInSupport, customTitle,
                 subtitle);
+    }
+
+    @Override
+    public Long getId() {
+        return this.getMusic_event_id();
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.setMusic_event_id(id);
     }
 
 }

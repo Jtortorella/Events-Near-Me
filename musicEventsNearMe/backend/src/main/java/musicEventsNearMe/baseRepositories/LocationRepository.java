@@ -1,4 +1,4 @@
-package musicEventsNearMe.repositories;
+package musicEventsNearMe.baseRepositories;
 
 import java.util.Optional;
 
