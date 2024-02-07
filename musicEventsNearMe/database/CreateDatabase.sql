@@ -10,19 +10,19 @@ CREATE TABLE IF NOT EXISTS performers (
     identifier VARCHAR(255),
     url VARCHAR(255),
     image VARCHAR(255),
-    datePublished VARCHAR(255),
-    dateModified VARCHAR(255),
-    performerType VARCHAR(255),
-    foundingLocationId BIGINT,
-    foundingDate VARCHAR(255),
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255),
+    performer_type VARCHAR(255),
+    founding_location_id BIGINT,
+    founding_date VARCHAR(255),
     genre JSON,
-    bandOrMusician VARCHAR(255),
-    numUpcomingEvents INT,
-    performanceDate VARCHAR(255),
-    performanceRank INT,
-    isHeadliner BOOLEAN,
-    dateIsConfirmed BOOLEAN,
-    timeRecordWasEntered DATETIME
+    band_or_musician VARCHAR(255),
+    num_upcoming_events INT,
+    performance_date VARCHAR(255),
+    performance_rank INT,
+    is_headliner BOOLEAN,
+    date_is_confirmed BOOLEAN,
+    time_record_was_entered DATETIME
 );
 
 -- Table: performances
@@ -41,23 +41,23 @@ CREATE TABLE IF NOT EXISTS music_events (
     identifier VARCHAR(255),
     url VARCHAR(255),
     image VARCHAR(255),
-    datePublished VARCHAR(255),
-    dateModified VARCHAR(255),
-    eventStatus VARCHAR(255),
-    startDate DATETIME,
-    endDate VARCHAR(255),
-    previousStartDate VARCHAR(255),
-    doorTime VARCHAR(255),
-    locationId BIGINT,
-    eventAttendanceMode VARCHAR(255),
-    isAccessibleForFree BOOLEAN,
-    promoImage VARCHAR(255),
-    eventType VARCHAR(255),
-    streamIds JSON,
-    headlinerInSupport BOOLEAN,
-    customTitle VARCHAR(255),
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255),
+    event_status VARCHAR(255),
+    start_date DATETIME,
+    end_date VARCHAR(255),
+    previous_start_date VARCHAR(255),
+    door_time VARCHAR(255),
+    location_id BIGINT,
+    event_attendance_mode VARCHAR(255),
+    is_accessible_for_free BOOLEAN,
+    promo_image VARCHAR(255),
+    event_type VARCHAR(255),
+    stream_ids JSON,
+    headliner_in_support BOOLEAN,
+    custom_title VARCHAR(255),
     subtitle VARCHAR(255),
-    timeRecordWasEntered DATETIME
+    time_record_was_entered DATETIME
 );
 
 -- Table: offers
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS offers (
 CREATE TABLE IF NOT EXISTS price_specifications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     price DOUBLE,
-    priceCurrency VARCHAR(255)
+    price_currency VARCHAR(255)
 );
 
 -- Table: sellers
@@ -97,28 +97,28 @@ CREATE TABLE IF NOT EXISTS locations (
     identifier VARCHAR(255),
     url VARCHAR(255),
     image VARCHAR(255),
-    datePublished VARCHAR(255),
-    dateModified VARCHAR(255),
-    maximumAttendeeCapacity INT,
+    date_published VARCHAR(255),
+    date_modified VARCHAR(255),
+    maximum_attendee_capacity INT,
     address_id BIGINT, -- Use address_id instead of addressId
-    isPermanentlyClosed BOOLEAN,
-    numUpcomingEvents INT,
-    timeRecordWasEntered DATETIME
+    is_permanently_closed BOOLEAN,
+    num_upcoming_events INT,
+    time_record_was_entered DATETIME
 );
 
 -- Table: addresses
 CREATE TABLE IF NOT EXISTS addresses (
     address_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    addressType VARCHAR(255),
-    streetAddress VARCHAR(255),
-    addressLocality VARCHAR(255),
-    postalCode VARCHAR(255),
-    address_region_id BIGINT, -- Use address_region_id instead of addressRegionId
-    address_country_id BIGINT, -- Use address_country_id instead of addressCountryId
-    streetAddress2 VARCHAR(255),
+    address_type VARCHAR(255),
+    street_address VARCHAR(255),
+    address_locality VARCHAR(255),
+    postal_code VARCHAR(255),
+    address_region_id BIGINT,
+    address_country_id BIGINT,
+    street_address2 VARCHAR(255),
     timezone VARCHAR(255),
-    jamBaseMetroId INT,
-    jamBaseCityId INT
+    jam_base_metro_id INT,
+    jam_base_city_id INT
 );
 
 -- Table: geo_coordinates

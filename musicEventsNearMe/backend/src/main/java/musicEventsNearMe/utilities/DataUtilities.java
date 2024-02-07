@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -13,8 +15,11 @@ import org.modelmapper.spi.MappingContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import musicEventsNearMe.dto.Genre;
 import musicEventsNearMe.dto.MusicEventDTO;
+import musicEventsNearMe.dto.PerformerDTO;
 import musicEventsNearMe.entities.MusicEvent;
+import musicEventsNearMe.entities.MusicEvent.Performer;
 import musicEventsNearMe.interfaces.BaseEntity;
 import musicEventsNearMe.interfaces.BaseRepository;
 
@@ -26,6 +31,24 @@ public class DataUtilities {
     public <D, T> D getDTOEntityFromObject(T data, Type type) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
+        if (type == PerformerDTO.class) {
+            Converter<List<String>, List<Genre>> stringListToGenre = new Converter<List<String>, List<Genre>>() {
+                @Override
+                public List<Genre> convert(MappingContext<List<String>, List<Genre>> context) {
+
+                    return context.getSource().stream().map((value) -> new Genre(null, value))
+                            .collect(Collectors.toList());
+
+                }
+            };
+            modelMapper.addConverter(stringListToGenre);
+
+            modelMapper.typeMap(Performer.class, PerformerDTO.class)
+                    .addMappings(mapping -> {
+                        mapping.using(stringListToGenre)
+                                .map(Performer::getGenre, PerformerDTO::setGenres);
+                    });
+        }
         if (type == MusicEventDTO.class) {
             Converter<String, LocalDateTime> stringToLocalDateTimeConverterStartDate = new Converter<String, LocalDateTime>() {
                 @Override

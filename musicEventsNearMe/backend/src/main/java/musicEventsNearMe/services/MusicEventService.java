@@ -77,45 +77,32 @@ public class MusicEventService {
 
     @Transactional
     public MusicEventDTO saveEntityAndReturnEntity(MusicEventDTO event) {
-        List<Offer> offers = new ArrayList<>();
+        Set<Offer> uniqueOffers = new HashSet<Offer>();
         if (event.getOffers() != null && !event.getOffers().isEmpty()) {
-            Set<Offer> uniqueOffers = new HashSet<Offer>();
             for (Offer offer : event.getOffers()) {
                 offer.setPriceSpecification(saveOrUpdatePriceSpecification(offer.getPriceSpecification()));
                 offer.setSeller(saveOrUpdateSeller(offer.getSeller()));
-                if (uniqueOffers.add(offer)) {
-                    offers.add(saveOrUpdateOffer(offer));
-                }
+                uniqueOffers.add(saveOrUpdateOffer(offer));
             }
         }
-        event.setOffers(offers);
+        event.setOffers(uniqueOffers);
         return musicEventRepository.save(event);
     }
 
     private PriceSpecification saveOrUpdatePriceSpecification(PriceSpecification priceSpecification) {
-        Optional<PriceSpecification> found = priceSpecificationRepository
-                .findByPriceAndPriceCurrency(priceSpecification.getPrice(), priceSpecification.getPriceCurrency());
-        if (!found.isPresent()) {
-            return priceSpecificationRepository.save(priceSpecification);
-        }
-        return found.get();
+        return priceSpecificationRepository
+                .findByPriceAndPriceCurrency(priceSpecification.getPrice(), priceSpecification.getPriceCurrency())
+                .orElseGet(() -> priceSpecificationRepository.save(priceSpecification));
     }
 
     private Seller saveOrUpdateSeller(Seller seller) {
-        Optional<Seller> found = sellerRepository.findByIdentifierAndName(seller.getIdentifier(), seller.getName());
-        if (!found.isPresent()) {
-            return sellerRepository.save(seller);
-        }
-        return found.get();
+        return sellerRepository.findByIdentifierAndName(seller.getIdentifier(), seller.getName())
+                .orElseGet(() -> sellerRepository.save(seller));
     }
 
     private Offer saveOrUpdateOffer(Offer offer) {
-        Optional<Offer> found = offerRepository.findByIdentifierAndUrlAndName(offer.getIdentifier(), offer.getUrl(),
-                offer.getName());
-        if (!found.isPresent()) {
-            return offerRepository.save(offer);
-        }
-        return found.get();
+        return offerRepository.findByIdentifierAndUrlAndName(offer.getIdentifier(), offer.getUrl(),
+                offer.getName()).orElseGet(() -> offerRepository.save(offer));
     }
 
     public MusicEventDTO getExistingMusicEvent(MusicEvent event) {
@@ -127,7 +114,13 @@ public class MusicEventService {
     }
 
     public void updateEntity(MusicEventDTO newEvent, MusicEventDTO oldEvent) {
-        dataUtilities.updateEntity(newEvent, oldEvent, musicEventRepository);
+        // dataUtilities.updateEntity(newEvent, oldEvent, musicEventRepository);
+        if (!newEvent.equals(oldEvent)) {
+
+        }
+        if (!newEvent.getOffers().equals(oldEvent.getOffers())) {
+
+        }
     }
 
 }

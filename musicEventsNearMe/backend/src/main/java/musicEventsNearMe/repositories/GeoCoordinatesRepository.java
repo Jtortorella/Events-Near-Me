@@ -2,10 +2,10 @@ package musicEventsNearMe.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import musicEventsNearMe.dto.LocationDTO.GeoCoordinates;
+import musicEventsNearMe.dto.GeoCoordinate;
 
 import java.util.Optional;
 
-public interface GeoCoordinatesRepository extends JpaRepository<GeoCoordinates, Long> {
-    Optional<GeoCoordinates> findByLatitudeAndLongitude(double latitude, double longitude);
+public interface GeoCoordinatesRepository extends JpaRepository<GeoCoordinate, Long> {
+    Optional<GeoCoordinate> findByLatitudeAndLongitude(double latitude, double longitude);
 }

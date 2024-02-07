@@ -1,20 +1,22 @@
 package musicEventsNearMe.services;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.Data;
-import musicEventsNearMe.dto.LocationDTO;
-import musicEventsNearMe.dto.LocationDTO.Address;
-import musicEventsNearMe.dto.LocationDTO.AddressCountry;
-import musicEventsNearMe.dto.LocationDTO.AddressRegion;
-import musicEventsNearMe.dto.LocationDTO.GeoCoordinates;
 import musicEventsNearMe.repositories.AddressCountryRepository;
 import musicEventsNearMe.repositories.AddressRegionRepository;
 import musicEventsNearMe.repositories.AddressRepository;
 import musicEventsNearMe.repositories.GeoCoordinatesRepository;
 import musicEventsNearMe.utilities.DataUtilities;
 import musicEventsNearMe.baseRepositories.LocationRepository;
+import musicEventsNearMe.dto.Address;
+import musicEventsNearMe.dto.AddressCountry;
+import musicEventsNearMe.dto.AddressRegion;
+import musicEventsNearMe.dto.GeoCoordinate;
+import musicEventsNearMe.dto.LocationDTO;
 import musicEventsNearMe.entities.MusicEvent.Location;
 
 @Service
@@ -46,23 +48,14 @@ public class LocationService {
 
     public Long saveEntityAndReturnId(LocationDTO location) {
         Address currentAddress = location.getAddress();
-
-        // Check if addressRegion and addressCountry have been previously saved
-        currentAddress.setAddressRegion(saveOrUpdateAddressRegion(currentAddress.getAddressRegion()));
-        currentAddress.setAddressCountry(saveOrUpdateAddressCountry(currentAddress.getAddressCountry()));
-
-        // Check if geo has been previously saved
-        location.setGeo(saveOrUpdateGeo(location.getGeo()));
-
-        // Check if address has been previously saved
-        currentAddress = saveOrUpdateAddress(currentAddress);
-        location.setAddress(currentAddress);
-
-        // Check if location has been previously saved
-        return saveOrUpdateLocation(location).getId();
+        currentAddress.setAddressRegion(saveOrReturnPreviouslyAddressRegion(currentAddress.getAddressRegion()));
+        currentAddress.setAddressCountry(saveOrReturnPreviouslyAddressCountry(currentAddress.getAddressCountry()));
+        location.setGeo(saveOrReturnPreviouslySavedGeo(location.getGeo()));
+        location.setAddress(saveOrReturnPreviouslySavedAddress(currentAddress));
+        return saveOrReturnPreviouslySavedLocation(location).getId();
     }
 
-    private Address saveOrUpdateAddress(Address address) {
+    private Address saveOrReturnPreviouslySavedAddress(Address address) {
         return addressRepository
                 .findByStreetAddressAndPostalCodeAndStreetAddress2(
                         address.getStreetAddress(),
@@ -70,28 +63,28 @@ public class LocationService {
                 .orElseGet(() -> addressRepository.saveAndFlush(address));
     }
 
-    private GeoCoordinates saveOrUpdateGeo(GeoCoordinates geo) {
+    private GeoCoordinate saveOrReturnPreviouslySavedGeo(GeoCoordinate geo) {
         return geoCoordinatesRepository.findByLatitudeAndLongitude(geo.getLatitude(),
                 geo.getLongitude()).orElseGet(() -> geoCoordinatesRepository.saveAndFlush(geo));
     }
 
-    private LocationDTO saveOrUpdateLocation(LocationDTO locationDTO) {
+    private LocationDTO saveOrReturnPreviouslySavedLocation(LocationDTO locationDTO) {
         return locationRepository.findByIdentifier(locationDTO.getIdentifier())
                 .orElseGet(() -> locationRepository.saveAndFlush(locationDTO));
     }
 
-    private AddressRegion saveOrUpdateAddressRegion(AddressRegion addressRegion) {
+    private AddressRegion saveOrReturnPreviouslyAddressRegion(AddressRegion addressRegion) {
         return addressRegionRepository.findByNameAndIdentifier(addressRegion.getName(),
                 addressRegion.getIdentifier()).orElseGet(() -> addressRegionRepository.saveAndFlush(addressRegion));
     }
 
-    private AddressCountry saveOrUpdateAddressCountry(AddressCountry addressCountry) {
+    private AddressCountry saveOrReturnPreviouslyAddressCountry(AddressCountry addressCountry) {
         return addressCountryRepository.findByNameAndIdentifier(addressCountry.getName(),
                 addressCountry.getIdentifier()).orElseGet(() -> addressCountryRepository.saveAndFlush(addressCountry));
     }
 
-    public LocationDTO getExistingLocation(Location location) {
-        return locationRepository.findByIdentifier(location.getIdentifier()).orElse(null);
+    public Optional<LocationDTO> getExistingLocation(Location location) {
+        return locationRepository.findByIdentifier(location.getIdentifier());
     }
 
     public LocationDTO getLocationDTO(Location location) {

@@ -2,7 +2,7 @@ package musicEventsNearMe.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import musicEventsNearMe.dto.LocationDTO.AddressRegion;
+import musicEventsNearMe.dto.AddressRegion;
 
 import java.util.Optional;
 

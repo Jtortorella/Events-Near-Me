@@ -15,6 +15,7 @@ import musicEventsNearMe.entities.EventApiResponse;
 import musicEventsNearMe.entities.MusicEvent;
 import musicEventsNearMe.entities.MusicEvent.Location;
 import musicEventsNearMe.entities.MusicEvent.Performer;
+import musicEventsNearMe.dto.LocationDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,8 +68,9 @@ public class DatabaseService {
 
     private Long findAndUpdateLocation(Location location) {
         LocationDTO newLocationDTO = locationService.getLocationDTO(location);
-        LocationDTO existingLocationDTO = locationService.getExistingLocation(location);
-        return existingLocationDTO == null ? locationService.saveEntityAndReturnId(newLocationDTO)
+        LocationDTO existingLocationDTO = locationService.getExistingLocation(location).orElse(null);
+        return existingLocationDTO == null
+                ? locationService.saveEntityAndReturnId(newLocationDTO)
                 : locationService.updateEntityAndReturnId(newLocationDTO, existingLocationDTO);
     }
 

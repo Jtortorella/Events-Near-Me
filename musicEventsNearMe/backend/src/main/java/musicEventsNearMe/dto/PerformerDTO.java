@@ -4,12 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -32,8 +33,8 @@ public class PerformerDTO implements BaseEntity {
     private String dateModified;
     private String performerType;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> genre;
+    @ManyToMany
+    private List<Genre> genres;
 
     private String bandOrMusician;
     private int numUpcomingEvents;
@@ -64,7 +65,7 @@ public class PerformerDTO implements BaseEntity {
                 Objects.equals(datePublished, that.datePublished) &&
                 Objects.equals(dateModified, that.dateModified) &&
                 Objects.equals(performerType, that.performerType) &&
-                Objects.equals(genre, that.genre) &&
+                Objects.equals(genres, that.genres) &&
                 Objects.equals(bandOrMusician, that.bandOrMusician) &&
                 Objects.equals(numUpcomingEvents, that.numUpcomingEvents) &&
                 Objects.equals(performanceDate, that.performanceDate) &&

@@ -1,8 +1,10 @@
 package musicEventsNearMe.dto;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
@@ -12,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -47,8 +50,8 @@ public class MusicEventDTO implements BaseEntity {
 
     private Long locationId;
 
-    @OneToMany(mappedBy = "musicEventDTO", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Offer> offers;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Offer> offers;
 
     private String eventAttendanceMode;
     private boolean isAccessibleForFree;
@@ -87,7 +90,6 @@ public class MusicEventDTO implements BaseEntity {
                 Objects.equals(previousStartDate, that.previousStartDate) &&
                 Objects.equals(doorTime, that.doorTime) &&
                 Objects.equals(locationId, that.locationId) &&
-                Objects.equals(offers, that.offers) &&
                 Objects.equals(eventAttendanceMode, that.eventAttendanceMode) &&
                 Objects.equals(isAccessibleForFree, that.isAccessibleForFree) &&
                 Objects.equals(promoImage, that.promoImage) &&
@@ -103,7 +105,7 @@ public class MusicEventDTO implements BaseEntity {
     public static class Offer {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long id;
+        private Long offer_id;
         private String name;
         private String identifier;
         private String url;
@@ -111,10 +113,6 @@ public class MusicEventDTO implements BaseEntity {
         private String dateModified;
         private String category;
         private String validFrom;
-
-        @ManyToOne
-        @JoinColumn(name = "music_event_id")
-        private MusicEventDTO musicEventDTO;
 
         @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
         private PriceSpecification priceSpecification;
@@ -141,7 +139,7 @@ public class MusicEventDTO implements BaseEntity {
         @Override
         public int hashCode() {
             return Objects.hash(
-                    id, name, identifier, url, datePublished, dateModified,
+                    offer_id, name, identifier, url, datePublished, dateModified,
                     category, priceSpecification, seller, validFrom);
         }
 
@@ -190,14 +188,10 @@ public class MusicEventDTO implements BaseEntity {
                 return true;
             if (o == null || getClass() != o.getClass())
                 return false;
-
-            // Check if the object is an instance of Seller
             if (!(o instanceof Seller)) {
                 return false;
             }
-
             Seller seller = (Seller) o;
-
             return Objects.equals(identifier, seller.identifier) &&
                     Objects.equals(name, seller.name);
         }
