@@ -33,10 +33,14 @@ public class LocationService {
 
     public LocationDTO saveEntityAndReturnEntity(LocationDTO location) {
         Address currentAddress = location.getAddress();
-        currentAddress.setAddressRegion(saveOrReturnPreviouslyAddressRegion(currentAddress.getAddressRegion()));
-        currentAddress.setAddressCountry(saveOrReturnPreviouslyAddressCountry(currentAddress.getAddressCountry()));
-        location.setGeo(saveOrReturnPreviouslySavedGeo(location.getGeo()));
-        location.setAddress(saveOrReturnPreviouslySavedAddress(currentAddress));
+        if (currentAddress != null) {
+            currentAddress.setAddressRegion(saveOrReturnPreviouslyAddressRegion(currentAddress.getAddressRegion()));
+            currentAddress.setAddressCountry(saveOrReturnPreviouslyAddressCountry(currentAddress.getAddressCountry()));
+            location.setAddress(saveOrReturnPreviouslySavedAddress(currentAddress));
+        }
+        if (location.getGeo() != null) {
+            location.setGeo(saveOrReturnPreviouslySavedGeo(location.getGeo()));
+        }
         return saveOrReturnPreviouslySavedLocation(location);
     }
 

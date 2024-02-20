@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.beans.factory.annotation.Value;
 
 import lombok.AllArgsConstructor;
 import musicEventsNearMe.entities.EventApiResponse;
@@ -17,10 +18,14 @@ import java.util.Optional;
 @AllArgsConstructor
 public class DatabaseService {
 
-    private final String apiKey = "be261bce-a04b-45fd-813b-bc31da5c73e7";
-    private final String apiUrl = "https://www.jambase.com/jb-api/v1/events";
     private final EventService eventService;
 
+    @Value("${jambase.api_key}")
+    private String apiKey;
+
+    String apiUrl = "https://www.jambase.com/jb-api/v1/events";
+
+    @SuppressWarnings("null")
     public void updateDatabaseWithConcertData() {
         try {
             ResponseEntity<EventApiResponse> response = new RestTemplate().getForEntity(buildApiUrl(0),
@@ -45,6 +50,7 @@ public class DatabaseService {
         }
     }
 
+    @SuppressWarnings("null")
     private void fetchEventsForPage(String url) throws RestClientException {
         ResponseEntity<EventApiResponse> response = new RestTemplate().getForEntity(url, EventApiResponse.class);
         Optional.ofNullable(response.getBody())
@@ -54,6 +60,7 @@ public class DatabaseService {
     private String buildApiUrl(int currentPage) {
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("page", currentPage)
+                .queryParam("geoStateIso", "US-SC")
                 .queryParam("eventDateFrom", getCurrentDate())
                 .queryParam("eventDateTo", getMaximumDate())
                 .queryParam("apikey", apiKey)
