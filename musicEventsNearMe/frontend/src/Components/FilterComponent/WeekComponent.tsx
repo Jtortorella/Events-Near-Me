@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import DayOfWeekComponent from "./DayOfWeekComponent";
 import { Context } from "../../Context/Context";
 import { Filter } from "../../Interfaces/AppInterfaces";
@@ -10,7 +10,6 @@ export const WeekComponent = () => {
 
   function handleDayFilterChange(event: Date): void {
     if (event) {
-      console.log(filter);
       setFilter((prev: Filter) => {
         if (filter.startDate && !filter.endDate) {
           // Only startDate is initialized.

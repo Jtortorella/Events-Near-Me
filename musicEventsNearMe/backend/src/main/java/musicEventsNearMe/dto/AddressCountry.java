@@ -1,13 +1,14 @@
 package musicEventsNearMe.dto;
 
+import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -18,13 +19,15 @@ public class AddressCountry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long address_country_id;
+    @JsonIgnore
     private String identifier;
     private String name;
 
-    @OneToOne
-    @JoinColumn(name = "address_id")
-    private Address address;
+    @JsonIgnore
+    @OneToMany(mappedBy = "addressCountry")
+    private List<Address> addresses;
 
     @Override
     public boolean equals(Object o) {

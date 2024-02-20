@@ -1,13 +1,13 @@
 package musicEventsNearMe.dto;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.ElementCollection;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -33,38 +32,40 @@ public class MusicEventDTO implements BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long music_event_id;
-
+    @JsonIgnore
+    @Column(name = "Music_Event_ID")
+    private Long id;
     private String name;
+    @JsonIgnore
     private String identifier;
+    @Column(columnDefinition = "VARCHAR(500)")
     private String url;
     private String image;
-
+    @JsonIgnore
     private String datePublished;
+    @JsonIgnore
     private String dateModified;
     private String eventStatus;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private String previousStartDate;
     private String doorTime;
-
-    private Long locationId;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Offer> offers;
-
     private String eventAttendanceMode;
     private boolean isAccessibleForFree;
     private String promoImage;
     private String eventType;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> streamIds;
-
-    private boolean headlinerInSupport;
-    private String customTitle;
-    private String subtitle;
+    @JsonIgnore
     private LocalDateTime timeRecordWasEntered;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "Location_ID")
+    private LocationDTO location;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Offer> offers;
+
+    @JsonIgnoreProperties("musicEvents")
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<PerformerDTO> performer;
 
     @PrePersist
     private void beforePersist() {
@@ -87,140 +88,20 @@ public class MusicEventDTO implements BaseEntity {
                 Objects.equals(eventStatus, that.eventStatus) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(endDate, that.endDate) &&
-                Objects.equals(previousStartDate, that.previousStartDate) &&
                 Objects.equals(doorTime, that.doorTime) &&
-                Objects.equals(locationId, that.locationId) &&
                 Objects.equals(eventAttendanceMode, that.eventAttendanceMode) &&
                 Objects.equals(isAccessibleForFree, that.isAccessibleForFree) &&
                 Objects.equals(promoImage, that.promoImage) &&
-                Objects.equals(eventType, that.eventType) &&
-                Objects.equals(headlinerInSupport, that.headlinerInSupport) &&
-                Objects.equals(customTitle, that.customTitle) &&
-                Objects.equals(subtitle, that.subtitle);
-    }
-
-    @Data
-    @Entity
-    @Table(name = "offers")
-    public static class Offer {
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long offer_id;
-        private String name;
-        private String identifier;
-        private String url;
-        private String datePublished;
-        private String dateModified;
-        private String category;
-        private String validFrom;
-
-        @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-        private PriceSpecification priceSpecification;
-
-        @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-        private Seller seller;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            Offer offer = (Offer) o;
-            return Objects.equals(name, offer.name) &&
-                    Objects.equals(identifier, offer.identifier) &&
-                    Objects.equals(url, offer.url) &&
-                    Objects.equals(datePublished, offer.datePublished) &&
-                    Objects.equals(dateModified, offer.dateModified) &&
-                    Objects.equals(category, offer.category) &&
-                    Objects.equals(priceSpecification, offer.priceSpecification) &&
-                    Objects.equals(seller, offer.seller) &&
-                    Objects.equals(validFrom, offer.validFrom);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(
-                    offer_id, name, identifier, url, datePublished, dateModified,
-                    category, priceSpecification, seller, validFrom);
-        }
-
-    }
-
-    @Data
-    @Entity
-    @Table(name = "price_specifications")
-    public static class PriceSpecification {
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long id;
-        private double price;
-        private String priceCurrency;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            PriceSpecification that = (PriceSpecification) o;
-            return Double.compare(that.price, price) == 0 &&
-                    Objects.equals(priceCurrency, that.priceCurrency);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, price, priceCurrency);
-        }
-    }
-
-    @Data
-    @Entity
-    @Table(name = "sellers")
-    public static class Seller {
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long id;
-        private String identifier;
-        private String name;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            if (!(o instanceof Seller)) {
-                return false;
-            }
-            Seller seller = (Seller) o;
-            return Objects.equals(identifier, seller.identifier) &&
-                    Objects.equals(name, seller.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, identifier, name);
-        }
-
+                Objects.equals(eventType, that.eventType);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                music_event_id, name, identifier, url, image, datePublished, dateModified,
-                eventStatus, startDate, endDate, previousStartDate, doorTime,
-                locationId, offers, eventAttendanceMode, isAccessibleForFree,
-                promoImage, eventType, streamIds, headlinerInSupport, customTitle,
-                subtitle);
-    }
-
-    @Override
-    public Long getId() {
-        return this.getMusic_event_id();
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.setMusic_event_id(id);
+                id, name, identifier, url, image, datePublished, dateModified,
+                eventStatus, startDate, endDate, doorTime,
+                offers, eventAttendanceMode, isAccessibleForFree,
+                promoImage, eventType);
     }
 
 }

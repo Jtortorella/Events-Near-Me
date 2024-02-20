@@ -2,7 +2,6 @@ package musicEventsNearMe.entities;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -173,9 +172,9 @@ public class MusicEvent {
     public static class PriceSpecification {
         private Long id;
         private String priceType;
-        private double minPrice;
-        private double maxPrice;
-        private double price;
+        private String minPrice;
+        private String maxPrice;
+        private String price;
         private String priceCurrency;
     }
 

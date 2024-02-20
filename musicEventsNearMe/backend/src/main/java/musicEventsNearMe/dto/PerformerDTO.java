@@ -1,16 +1,18 @@
 package musicEventsNearMe.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -20,31 +22,26 @@ import musicEventsNearMe.interfaces.BaseEntity;
 @Entity
 @Table(name = "performers")
 public class PerformerDTO implements BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
-
     private String name;
+    @JsonIgnore
     private String identifier;
+    @Column(columnDefinition = "VARCHAR(500)")
     private String url;
     private String image;
-
+    @JsonIgnore
     private String datePublished;
+    @JsonIgnore
     private String dateModified;
-    private String performerType;
-
-    @ManyToMany
-    private List<Genre> genres;
-
-    private String bandOrMusician;
-    private int numUpcomingEvents;
-
-    private String performanceDate;
-    private int performanceRank;
-    private boolean isHeadliner;
-    private boolean dateIsConfirmed;
-
+    @JsonIgnore
     private LocalDateTime timeRecordWasEntered;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Genre> genres;
 
     @PrePersist
     private void beforePersist() {
@@ -64,14 +61,7 @@ public class PerformerDTO implements BaseEntity {
                 Objects.equals(image, that.image) &&
                 Objects.equals(datePublished, that.datePublished) &&
                 Objects.equals(dateModified, that.dateModified) &&
-                Objects.equals(performerType, that.performerType) &&
-                Objects.equals(genres, that.genres) &&
-                Objects.equals(bandOrMusician, that.bandOrMusician) &&
-                Objects.equals(numUpcomingEvents, that.numUpcomingEvents) &&
-                Objects.equals(performanceDate, that.performanceDate) &&
-                Objects.equals(performanceRank, that.performanceRank) &&
-                Objects.equals(isHeadliner, that.isHeadliner) &&
-                Objects.equals(dateIsConfirmed, that.dateIsConfirmed);
+                Objects.equals(genres, that.genres);
     }
 
     @Override

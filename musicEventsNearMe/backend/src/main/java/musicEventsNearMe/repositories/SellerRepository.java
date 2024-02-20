@@ -2,7 +2,8 @@ package musicEventsNearMe.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import musicEventsNearMe.dto.MusicEventDTO.Seller;
+import musicEventsNearMe.dto.Seller;
+
 import java.util.Optional;
 
 public interface SellerRepository extends JpaRepository<Seller, Long> {

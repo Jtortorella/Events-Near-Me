@@ -3,23 +3,21 @@ package musicEventsNearMe.services;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import musicEventsNearMe.baseRepositories.MusicEventRepository;
 import musicEventsNearMe.dto.MusicEventDTO;
-import musicEventsNearMe.dto.MusicEventDTO.Offer;
-import musicEventsNearMe.dto.MusicEventDTO.PriceSpecification;
-import musicEventsNearMe.dto.MusicEventDTO.Seller;
+import musicEventsNearMe.dto.Offer;
+import musicEventsNearMe.dto.PriceSpecification;
+import musicEventsNearMe.dto.Seller;
 import musicEventsNearMe.entities.GeoCoordinatesResponeObject;
 import musicEventsNearMe.entities.MapMaxims;
 import musicEventsNearMe.entities.MusicEvent;
@@ -29,25 +27,14 @@ import musicEventsNearMe.repositories.SellerRepository;
 import musicEventsNearMe.utilities.DataUtilities;
 
 @Service
+@AllArgsConstructor
 public class MusicEventService {
 
-    @Autowired
-    MusicEventRepository musicEventRepository;
-
-    @Autowired
-    OfferRepository offerRepository;
-
-    @Autowired
-    PriceSpecificationRepository priceSpecificationRepository;
-
-    @Autowired
-    SellerRepository sellerRepository;
-
-    @Autowired
-    DataUtilities dataUtilities;
-
-    @Autowired
-    EntityManager entityManager;
+    private final MusicEventRepository musicEventRepository;
+    private final OfferRepository offerRepository;
+    private final PriceSpecificationRepository priceSpecificationRepository;
+    private final SellerRepository sellerRepository;
+    private final DataUtilities dataUtilities;
 
     public ResponseEntity<List<GeoCoordinatesResponeObject>> getConcertDataForMap(MapMaxims mapMaxim) {
         mapMaxim.checkForNegatives();
@@ -62,8 +49,10 @@ public class MusicEventService {
                         .collect(Collectors.toList()));
     }
 
-    public ResponseEntity<Object> getEventDetailsById(Long id) {
-        return ResponseEntity.ok().body(musicEventRepository.findEventDetailsById(id));
+    public ResponseEntity<MusicEventDTO> getEventDetailsById(Long id) {
+        return id == null
+                ? null
+                : ResponseEntity.ok().body(musicEventRepository.findById(id).orElse(null));
     }
 
     public LocalDateTime convertToLocalDateTime(String str) {
@@ -71,22 +60,25 @@ public class MusicEventService {
         return LocalDateTime.parse(str, formatter);
     }
 
-    public MusicEventDTO findById(Long id) {
-        return musicEventRepository.findById(id).orElse(null);
-    }
-
     @Transactional
     public MusicEventDTO saveEntityAndReturnEntity(MusicEventDTO event) {
-        Set<Offer> uniqueOffers = new HashSet<Offer>();
+        List<Offer> uniqueOffers = new ArrayList<Offer>();
         if (event.getOffers() != null && !event.getOffers().isEmpty()) {
             for (Offer offer : event.getOffers()) {
                 offer.setPriceSpecification(saveOrUpdatePriceSpecification(offer.getPriceSpecification()));
                 offer.setSeller(saveOrUpdateSeller(offer.getSeller()));
                 uniqueOffers.add(saveOrUpdateOffer(offer));
             }
+            event.setOffers(uniqueOffers);
+        } else {
+            event.setOffers(Collections.emptyList());
         }
-        event.setOffers(uniqueOffers);
         return musicEventRepository.save(event);
+    }
+
+    private Offer saveOrUpdateOffer(Offer offer) {
+        return offerRepository.findByIdentifierAndUrlAndName(offer.getIdentifier(), offer.getUrl(),
+                offer.getName()).orElseGet(() -> offerRepository.save(offer));
     }
 
     private PriceSpecification saveOrUpdatePriceSpecification(PriceSpecification priceSpecification) {
@@ -100,27 +92,16 @@ public class MusicEventService {
                 .orElseGet(() -> sellerRepository.save(seller));
     }
 
-    private Offer saveOrUpdateOffer(Offer offer) {
-        return offerRepository.findByIdentifierAndUrlAndName(offer.getIdentifier(), offer.getUrl(),
-                offer.getName()).orElseGet(() -> offerRepository.save(offer));
-    }
-
-    public MusicEventDTO getExistingMusicEvent(MusicEvent event) {
-        return musicEventRepository.findByIdentifier(event.getIdentifier()).orElse(null);
+    public Optional<MusicEventDTO> getExistingMusicEvent(MusicEvent event) {
+        return musicEventRepository.findByIdentifier(event.getIdentifier());
     }
 
     public MusicEventDTO getMusicEventDTO(MusicEvent event) {
         return dataUtilities.getDTOEntityFromObject(event, MusicEventDTO.class);
     }
 
-    public void updateEntity(MusicEventDTO newEvent, MusicEventDTO oldEvent) {
-        // dataUtilities.updateEntity(newEvent, oldEvent, musicEventRepository);
-        if (!newEvent.equals(oldEvent)) {
-
-        }
-        if (!newEvent.getOffers().equals(oldEvent.getOffers())) {
-
-        }
+    public MusicEventDTO updateEntityAndReturnEntity(MusicEventDTO oldEvent) {
+        return oldEvent;
     }
 
 }

@@ -9,22 +9,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name = "genres")
-@AllArgsConstructor
-@NoArgsConstructor
-public class Genre {
+@Table(name = "price_specifications")
+public class PriceSpecification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
-    private Long genre_id;
-    private String genreName;
+    private Long id;
+    private String price;
+    private String priceCurrency;
 
     @Override
     public boolean equals(Object o) {
@@ -32,12 +29,13 @@ public class Genre {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        Genre that = (Genre) o;
-        return Objects.equals(genreName, that.genreName);
+        PriceSpecification that = (PriceSpecification) o;
+        return that.price.equals(price) &&
+                Objects.equals(priceCurrency, that.priceCurrency);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(genreName);
+        return Objects.hash(id, price, priceCurrency);
     }
 }

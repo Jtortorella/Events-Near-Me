@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import musicEventsNearMe.dto.MusicEventDTO;
 import musicEventsNearMe.entities.GeoCoordinatesResponeObject;
 import musicEventsNearMe.entities.MapMaxims;
 import musicEventsNearMe.services.MusicEventService;
@@ -29,7 +30,7 @@ public class ConcertDataController {
     }
 
     @GetMapping("/event/{id}")
-    public ResponseEntity<Object> getEvents(@PathVariable Long id) {
+    public ResponseEntity<MusicEventDTO> getEvents(@PathVariable Long id) {
         return musicEventService.getEventDetailsById(id);
     }
 

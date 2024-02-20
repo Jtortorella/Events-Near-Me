@@ -1,48 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { convertLocalDateTimeToDateTime } from "../../Hooks/HandleDateTime";
-import { EventInfo, Performer } from "../../Interfaces/AppInterfaces";
+import { EventInfo } from "../../Interfaces/AppInterfaces";
+import { getEventDetails } from "../../Hooks/APICall";
 
 interface InfoWindowContentProps {
-  eventInfo: Promise<EventInfo[] | undefined>;
+  musicEventId: number | number[];
 }
 
-const InfoWindowContent: React.FC<InfoWindowContentProps> = ({ eventInfo }) => {
+const InfoWindowContent: React.FC<InfoWindowContentProps> = ({ musicEventId }) => {
   const [infoArr, setInfoArr] = useState<EventInfo[]>([]);
   const [index, setIndex] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resolvedInfo = await eventInfo;
+        const resolvedInfo = await getEventDetails(musicEventId);
         if (resolvedInfo) {
-          setInfoArr([...resolvedInfo]);
+          setInfoArr(resolvedInfo);
         }
       } catch (error) {
         console.error("Error fetching event info:", error);
       }
     };
-
     fetchData();
-  }, [eventInfo]);
+  }, [musicEventId]);
 
   if (!infoArr || infoArr.length === 0) {
-    console.log("INCORRECT DATA");
     return null;
   }
 
-  const { name, start_date, performers_details, location_name } = infoArr[index];
+  const { name, startDate, performer, location } = infoArr[index];
 
-  const performers: Performer[] = performers_details.split('|').map((value) => {
-    const [id, performerName, url, numUpcomingEvents] = value.split(',');
-    return {
-      id,
-      name: performerName,
-      url,
-      numUpcomingEvents: parseInt(numUpcomingEvents),
-    };
-  });
-
-  const handleButtonClick = (direction: number) => {
+  const handleButtonClick = (direction: number): void => {
     setIndex((prev) => Math.max(0, Math.min(prev + direction, infoArr.length - 1)));
   };
 
@@ -50,17 +39,17 @@ const InfoWindowContent: React.FC<InfoWindowContentProps> = ({ eventInfo }) => {
     <div className="infoWindowContainer">
       {name}
       <br />
-      {convertLocalDateTimeToDateTime(start_date)}
+      {convertLocalDateTimeToDateTime(startDate)}
       <br />
       <br />
       PERFORMERS:
-      {performers.map((performer, idx) => (
+      {performer.map((performer, idx) => (
         <p key={idx + 1}>
           {idx + 1}: {performer.name} <br />
         </p>
       ))}
       <br />
-      {location_name}
+      {location.name}
       <br />
       <div id="button-container">
         {index !== 0 && (

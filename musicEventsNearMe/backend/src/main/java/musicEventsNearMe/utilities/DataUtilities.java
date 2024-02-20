@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.Converter;
@@ -32,12 +33,12 @@ public class DataUtilities {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         if (type == PerformerDTO.class) {
-            Converter<List<String>, List<Genre>> stringListToGenre = new Converter<List<String>, List<Genre>>() {
+            Converter<List<String>, Set<Genre>> stringListToGenre = new Converter<List<String>, Set<Genre>>() {
                 @Override
-                public List<Genre> convert(MappingContext<List<String>, List<Genre>> context) {
+                public Set<Genre> convert(MappingContext<List<String>, Set<Genre>> context) {
 
                     return context.getSource().stream().map((value) -> new Genre(null, value))
-                            .collect(Collectors.toList());
+                            .collect(Collectors.toSet());
 
                 }
             };
@@ -64,12 +65,31 @@ public class DataUtilities {
                     }
                 }
             };
+
+            Converter<String, LocalDateTime> stringToLocalDateTimeConverterEndDate = new Converter<String, LocalDateTime>() {
+                @Override
+                public LocalDateTime convert(MappingContext<String, LocalDateTime> context) {
+                    if (context.getSource() == null) {
+                        return null;
+                    }
+                    String str = context.getSource();
+                    try {
+                        return LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+                    } catch (DateTimeParseException e) {
+                        return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atTime(23, 59, 59);
+                    }
+                }
+            };
+
             modelMapper.addConverter(stringToLocalDateTimeConverterStartDate);
+            modelMapper.addConverter(stringToLocalDateTimeConverterEndDate);
 
             modelMapper.typeMap(MusicEvent.class, MusicEventDTO.class)
                     .addMappings(mapping -> {
                         mapping.using(stringToLocalDateTimeConverterStartDate)
                                 .map(MusicEvent::getStartDate, MusicEventDTO::setStartDate);
+                        mapping.using(stringToLocalDateTimeConverterEndDate).map(MusicEvent::getEndDate,
+                                MusicEventDTO::setEndDate);
                     });
         }
         return modelMapper.map(data, type);

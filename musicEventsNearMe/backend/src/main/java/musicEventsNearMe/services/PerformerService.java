@@ -1,46 +1,35 @@
 package musicEventsNearMe.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import musicEventsNearMe.baseRepositories.PerformerRepository;
-import musicEventsNearMe.dto.Address;
 import musicEventsNearMe.dto.Genre;
-import musicEventsNearMe.dto.MusicEventDTO.Offer;
 import musicEventsNearMe.dto.PerformerDTO;
 import musicEventsNearMe.entities.MusicEvent.Performer;
 import musicEventsNearMe.repositories.GenreRepository;
 import musicEventsNearMe.utilities.DataUtilities;
 
 @Service
+@AllArgsConstructor
 public class PerformerService {
 
-    @Autowired
-    private PerformerRepository performerRepository;
+    private final PerformerRepository performerRepository;
+    private final DataUtilities dataUtilities;
+    private final GenreRepository genreRepository;
 
-    @Autowired
-    private DataUtilities dataUtilities;
-
-    @Autowired
-    private GenreRepository genreRepository;
-
-    public long checkForDuplicateData(PerformerDTO performerDTO) {
-        return performerRepository.findByIdentifier(performerDTO.getIdentifier())
-                .map(PerformerDTO::getId)
-                .orElse(-1L);
-    }
-
-    public PerformerDTO findById(Long id) {
-        return performerRepository.findById(id).orElse(null);
-    }
-
-    public boolean checkIfEntityExists(Performer performer) {
-        PerformerDTO performerDTO = dataUtilities.getDTOEntityFromObject(performer, PerformerDTO.class);
-        return performerRepository.findByIdentifier(performerDTO.getIdentifier()).isPresent();
+    public PerformerDTO saveEntityAndReturnEntity(PerformerDTO performerDTO) {
+        Set<Genre> genres = new HashSet<Genre>();
+        for (Genre genre : performerDTO.getGenres()) {
+            genres.add(saveOrReturnPreviouslySavedGenre(genre));
+        }
+        performerDTO.setGenres(genres);
+        return performerRepository.saveAndFlush(performerDTO);
     }
 
     private Genre saveOrReturnPreviouslySavedGenre(Genre genre) {
@@ -50,40 +39,15 @@ public class PerformerService {
                 .orElseGet(() -> genreRepository.saveAndFlush(genre));
     }
 
-    public Long saveEntityAndReturnId(PerformerDTO performerDTO) {
-        List<Genre> genres = new ArrayList<Genre>();
-        if (performerDTO.getGenres() != null) {
-            for (Genre genre : performerDTO.getGenres()) {
-                genres.add(saveOrReturnPreviouslySavedGenre(genre));
-            }
-        }
-        performerDTO.setGenres(genres);
-        return performerRepository.saveAndFlush(performerDTO).getId();
-    }
-
-    public List<PerformerDTO> getExistingPerformers(List<Performer> performers) {
-        return performers.stream()
-                .map(this::getExistingPerformer)
-                .collect(Collectors.toList());
-    }
-
-    public PerformerDTO getExistingPerformer(Performer performer) {
-        return performerRepository.findByIdentifier(performer.getIdentifier()).orElse(null);
-    }
-
-    public List<PerformerDTO> getPerformersDTO(List<Performer> performers) {
-        return performers.stream()
-                .map(this::getPerformerDTO)
-                .collect(Collectors.toList());
+    public Optional<PerformerDTO> getExistingPerformer(Performer currentPerformer) {
+        return performerRepository.findByIdentifier(currentPerformer.getIdentifier());
     }
 
     public PerformerDTO getPerformerDTO(Performer performer) {
         return dataUtilities.getDTOEntityFromObject(performer, PerformerDTO.class);
     }
 
-    public Long updateEntityAndReturnId(PerformerDTO newPerformerDTO, PerformerDTO oldPerformerDTO) {
-        // return dataUtilities.updateEntity(newPerformerDTO, oldPerformerDTO,
-        // performerRepository).getId();
-        return 1l;
+    public PerformerDTO updateEntityAndReturnEntity(PerformerDTO oldPerformerDTO, PerformerDTO newPerformerDTO) {
+        return oldPerformerDTO;
     }
 }

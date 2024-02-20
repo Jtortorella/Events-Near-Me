@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import musicEventsNearMe.repositories.AddressCountryRepository;
 import musicEventsNearMe.repositories.AddressRegionRepository;
 import musicEventsNearMe.repositories.AddressRepository;
@@ -20,8 +20,8 @@ import musicEventsNearMe.dto.LocationDTO;
 import musicEventsNearMe.entities.MusicEvent.Location;
 
 @Service
-@Data
 @Transactional
+@AllArgsConstructor
 public class LocationService {
 
     private final LocationRepository locationRepository;
@@ -31,28 +31,13 @@ public class LocationService {
     private final AddressRegionRepository addressRegionRepository;
     private final AddressCountryRepository addressCountryRepository;
 
-    public LocationService(
-            LocationRepository locationRepository,
-            DataUtilities dataUtilities,
-            AddressRepository addressRepository,
-            GeoCoordinatesRepository geoCoordinatesRepository,
-            AddressRegionRepository addressRegionRepository,
-            AddressCountryRepository addressCountryRepository) {
-        this.locationRepository = locationRepository;
-        this.dataUtilities = dataUtilities;
-        this.addressRepository = addressRepository;
-        this.geoCoordinatesRepository = geoCoordinatesRepository;
-        this.addressRegionRepository = addressRegionRepository;
-        this.addressCountryRepository = addressCountryRepository;
-    }
-
-    public Long saveEntityAndReturnId(LocationDTO location) {
+    public LocationDTO saveEntityAndReturnEntity(LocationDTO location) {
         Address currentAddress = location.getAddress();
         currentAddress.setAddressRegion(saveOrReturnPreviouslyAddressRegion(currentAddress.getAddressRegion()));
         currentAddress.setAddressCountry(saveOrReturnPreviouslyAddressCountry(currentAddress.getAddressCountry()));
         location.setGeo(saveOrReturnPreviouslySavedGeo(location.getGeo()));
         location.setAddress(saveOrReturnPreviouslySavedAddress(currentAddress));
-        return saveOrReturnPreviouslySavedLocation(location).getId();
+        return saveOrReturnPreviouslySavedLocation(location);
     }
 
     private Address saveOrReturnPreviouslySavedAddress(Address address) {
@@ -91,9 +76,7 @@ public class LocationService {
         return dataUtilities.getDTOEntityFromObject(location, LocationDTO.class);
     }
 
-    public Long updateEntityAndReturnId(LocationDTO newLocation, LocationDTO oldLocation) {
-        return 1l;
-        // return dataUtilities.updateEntity(newLocation, oldLocation,
-        // locationRepository).getId();
+    public LocationDTO updateEntityAndReturnEntity(LocationDTO oldLocation, LocationDTO newLocation) {
+        return oldLocation;
     }
 }
