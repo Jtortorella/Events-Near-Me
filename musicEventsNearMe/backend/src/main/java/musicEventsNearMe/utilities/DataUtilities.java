@@ -1,18 +1,12 @@
 package musicEventsNearMe.utilities;
 
 import java.lang.reflect.Type;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.modelmapper.spi.MappingContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,98 +16,47 @@ import musicEventsNearMe.dto.PerformerDTO;
 import musicEventsNearMe.entities.MusicEvent;
 import musicEventsNearMe.entities.MusicEvent.Performer;
 import musicEventsNearMe.interfaces.BaseEntity;
-import musicEventsNearMe.interfaces.BaseRepository;
 
 @Service
 public class DataUtilities {
 
     private final ModelMapper modelMapper = new ModelMapper();
 
+    private final ObjectConverterOverrides overrides = new ObjectConverterOverrides();
+
     public <D, T> D getDTOEntityFromObject(T data, Type type) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
         if (type == PerformerDTO.class) {
-            Converter<List<String>, Set<Genre>> stringListToGenre = new Converter<List<String>, Set<Genre>>() {
-                @Override
-                public Set<Genre> convert(MappingContext<List<String>, Set<Genre>> context) {
-
-                    return context.getSource().stream().map((value) -> new Genre(null, value))
-                            .collect(Collectors.toSet());
-
-                }
-            };
-            modelMapper.addConverter(stringListToGenre);
-
+            Converter<List<String>, Set<Genre>> endDateConverter = overrides.getGenreConverter();
+            modelMapper.addConverter(endDateConverter);
             modelMapper.typeMap(Performer.class, PerformerDTO.class)
                     .addMappings(mapping -> {
-                        mapping.using(stringListToGenre)
+                        mapping.using(endDateConverter)
                                 .map(Performer::getGenre, PerformerDTO::setGenres);
                     });
         }
         if (type == MusicEventDTO.class) {
-            Converter<String, LocalDateTime> stringToLocalDateTimeConverterStartDate = new Converter<String, LocalDateTime>() {
-                @Override
-                public LocalDateTime convert(MappingContext<String, LocalDateTime> context) {
-                    if (context.getSource() == null) {
-                        return null;
-                    }
-                    String str = context.getSource();
-                    try {
-                        return LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
-                    } catch (DateTimeParseException e) {
-                        return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
-                    }
-                }
-            };
-
-            Converter<String, LocalDateTime> stringToLocalDateTimeConverterEndDate = new Converter<String, LocalDateTime>() {
-                @Override
-                public LocalDateTime convert(MappingContext<String, LocalDateTime> context) {
-                    if (context.getSource() == null) {
-                        return null;
-                    }
-                    String str = context.getSource();
-                    try {
-                        return LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
-                    } catch (DateTimeParseException e) {
-                        return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atTime(23, 59, 59);
-                    }
-                }
-            };
-
-            modelMapper.addConverter(stringToLocalDateTimeConverterStartDate);
-            modelMapper.addConverter(stringToLocalDateTimeConverterEndDate);
-
+            Converter<String, LocalDateTime> startDateConverter = overrides.getStartDateConverter();
+            Converter<String, LocalDateTime> endDateConverter = overrides.getEndDateConverter();
+            modelMapper.addConverter(startDateConverter);
+            modelMapper.addConverter(endDateConverter);
             modelMapper.typeMap(MusicEvent.class, MusicEventDTO.class)
                     .addMappings(mapping -> {
-                        mapping.using(stringToLocalDateTimeConverterStartDate)
+                        mapping.using(startDateConverter)
                                 .map(MusicEvent::getStartDate, MusicEventDTO::setStartDate);
-                        mapping.using(stringToLocalDateTimeConverterEndDate).map(MusicEvent::getEndDate,
+                        mapping.using(endDateConverter).map(MusicEvent::getEndDate,
                                 MusicEventDTO::setEndDate);
                     });
         }
         return modelMapper.map(data, type);
     }
 
-    public <T extends BaseEntity> T checkForDuplicateDataAndReturnEntity(T entity,
-            BaseRepository<T> repository) {
-        return repository.findByIdentifier(entity.getIdentifier()).orElse(null);
-    }
-
-    public <T extends BaseEntity> boolean checkForDuplicateDataAndReturnBoolean(T entity,
-            BaseRepository<T> repository) {
-        return repository.findByIdentifier(entity.getIdentifier()).isPresent();
-    }
-
     public <T extends BaseEntity> T updateEntity(T newEntity, T existingEntity, JpaRepository<T, Long> repository) {
-        if (newEntity != null && existingEntity != null) {
-            Long id = existingEntity.getId();
-            modelMapper.map(newEntity, existingEntity);
-            existingEntity.setTimeRecordWasEntered(LocalDateTime.now());
-            existingEntity.setId(id);
-            return repository.saveAndFlush(existingEntity);
-        }
-        return null;
+        Long id = existingEntity.getId();
+        modelMapper.map(newEntity, existingEntity);
+        existingEntity.setTimeRecordWasEntered(LocalDateTime.now());
+        existingEntity.setId(id);
+        return repository.saveAndFlush(existingEntity);
     }
 
 }

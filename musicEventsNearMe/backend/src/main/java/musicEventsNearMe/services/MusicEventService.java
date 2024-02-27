@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import musicEventsNearMe.baseRepositories.MusicEventRepository;
 import musicEventsNearMe.dto.MusicEventDTO;
@@ -50,9 +49,7 @@ public class MusicEventService {
     }
 
     public ResponseEntity<MusicEventDTO> getEventDetailsById(Long id) {
-        return id == null
-                ? null
-                : ResponseEntity.ok().body(musicEventRepository.findById(id).orElse(null));
+        return ResponseEntity.ok().body(musicEventRepository.findById(id).orElse(null));
     }
 
     public LocalDateTime convertToLocalDateTime(String str) {
@@ -60,8 +57,11 @@ public class MusicEventService {
         return LocalDateTime.parse(str, formatter);
     }
 
-    @Transactional
     public MusicEventDTO saveEntityAndReturnEntity(MusicEventDTO event) {
+        return musicEventRepository.save(setEntityAndReturnEntity(event));
+    }
+
+    public MusicEventDTO setEntityAndReturnEntity(MusicEventDTO event) {
         List<Offer> uniqueOffers = new ArrayList<Offer>();
         if (event.getOffers() != null && !event.getOffers().isEmpty()) {
             for (Offer offer : event.getOffers()) {
@@ -73,7 +73,7 @@ public class MusicEventService {
         } else {
             event.setOffers(Collections.emptyList());
         }
-        return musicEventRepository.save(event);
+        return event;
     }
 
     private Offer saveOrUpdateOffer(Offer offer) {
@@ -92,16 +92,30 @@ public class MusicEventService {
                 .orElseGet(() -> sellerRepository.save(seller));
     }
 
-    public Optional<MusicEventDTO> getExistingMusicEvent(MusicEvent event) {
-        return musicEventRepository.findByIdentifier(event.getIdentifier());
+    public Optional<MusicEventDTO> getExistingMusicEvent(MusicEventDTO newMusicEvent) {
+        return musicEventRepository.findByIdentifier(newMusicEvent.getIdentifier());
+    }
+
+    public Optional<MusicEventDTO> getExistingMusicEventByIdentifier(String identifier) {
+        return musicEventRepository.findByIdentifier(identifier);
     }
 
     public MusicEventDTO getMusicEventDTO(MusicEvent event) {
         return dataUtilities.getDTOEntityFromObject(event, MusicEventDTO.class);
     }
 
-    public MusicEventDTO updateEntityAndReturnEntity(MusicEventDTO oldEvent) {
-        return oldEvent;
+    public MusicEventDTO updateEntityAndReturnEntity(MusicEventDTO oldEvent, MusicEventDTO newEvent) {
+        return dataUtilities.updateEntity(newEvent, oldEvent, musicEventRepository);
+    }
+
+    public MusicEventDTO updateOrSaveEntityAndReturnEntity(MusicEventDTO newMusicEvent) {
+        return getExistingMusicEvent(newMusicEvent)
+                .map(existingMusicEvent -> {
+                    MusicEventDTO entity = setEntityAndReturnEntity(newMusicEvent);
+                    return existingMusicEvent.equals(entity) ? existingMusicEvent
+                            : dataUtilities.updateEntity(entity, existingMusicEvent, musicEventRepository);
+                })
+                .orElseGet(() -> saveEntityAndReturnEntity(newMusicEvent));
     }
 
 }

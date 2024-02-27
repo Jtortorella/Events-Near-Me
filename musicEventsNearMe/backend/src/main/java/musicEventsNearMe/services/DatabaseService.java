@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.beans.factory.annotation.Value;
-
 import lombok.AllArgsConstructor;
 import musicEventsNearMe.entities.EventApiResponse;
 
@@ -19,11 +17,6 @@ import java.util.Optional;
 public class DatabaseService {
 
     private final EventService eventService;
-
-    @Value("${jambase.api_key}")
-    private String apiKey;
-
-    String apiUrl = "https://www.jambase.com/jb-api/v1/events";
 
     @SuppressWarnings("null")
     public void updateDatabaseWithConcertData() {
@@ -58,12 +51,14 @@ public class DatabaseService {
     }
 
     private String buildApiUrl(int currentPage) {
+        String apiUrl = "https://www.jambase.com/jb-api/v1/events";
+
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("page", currentPage)
-                .queryParam("geoStateIso", "US-SC")
+                .queryParam("geoStateIso", "US-NC")
                 .queryParam("eventDateFrom", getCurrentDate())
                 .queryParam("eventDateTo", getMaximumDate())
-                .queryParam("apikey", apiKey)
+                .queryParam("apikey", "be261bce-a04b-45fd-813b-bc31da5c73e7")
                 .toUriString();
     }
 

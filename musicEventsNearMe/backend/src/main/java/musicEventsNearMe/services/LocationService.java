@@ -17,7 +17,6 @@ import musicEventsNearMe.dto.AddressCountry;
 import musicEventsNearMe.dto.AddressRegion;
 import musicEventsNearMe.dto.GeoCoordinate;
 import musicEventsNearMe.dto.LocationDTO;
-import musicEventsNearMe.entities.MusicEvent.Location;
 
 @Service
 @Transactional
@@ -32,6 +31,10 @@ public class LocationService {
     private final AddressCountryRepository addressCountryRepository;
 
     public LocationDTO saveEntityAndReturnEntity(LocationDTO location) {
+        return saveOrReturnPreviouslySavedLocation(setEntityAndReturnEntity(location));
+    }
+
+    public LocationDTO setEntityAndReturnEntity(LocationDTO location) {
         Address currentAddress = location.getAddress();
         if (currentAddress != null) {
             currentAddress.setAddressRegion(saveOrReturnPreviouslyAddressRegion(currentAddress.getAddressRegion()));
@@ -41,7 +44,7 @@ public class LocationService {
         if (location.getGeo() != null) {
             location.setGeo(saveOrReturnPreviouslySavedGeo(location.getGeo()));
         }
-        return saveOrReturnPreviouslySavedLocation(location);
+        return location;
     }
 
     private Address saveOrReturnPreviouslySavedAddress(Address address) {
@@ -72,15 +75,17 @@ public class LocationService {
                 addressCountry.getIdentifier()).orElseGet(() -> addressCountryRepository.saveAndFlush(addressCountry));
     }
 
-    public Optional<LocationDTO> getExistingLocation(Location location) {
+    public Optional<LocationDTO> getExistingLocation(LocationDTO location) {
         return locationRepository.findByIdentifier(location.getIdentifier());
     }
 
-    public LocationDTO getLocationDTO(Location location) {
-        return dataUtilities.getDTOEntityFromObject(location, LocationDTO.class);
-    }
-
-    public LocationDTO updateEntityAndReturnEntity(LocationDTO oldLocation, LocationDTO newLocation) {
-        return oldLocation;
+    public LocationDTO updateOrSaveEntityAndReturnEntity(LocationDTO newLocation) {
+        return getExistingLocation(newLocation)
+                .map(existingLocation -> {
+                    LocationDTO entity = setEntityAndReturnEntity(newLocation);
+                    return existingLocation.equals(entity) ? existingLocation
+                            : dataUtilities.updateEntity(entity, existingLocation, locationRepository);
+                })
+                .orElseGet(() -> saveEntityAndReturnEntity(newLocation));
     }
 }

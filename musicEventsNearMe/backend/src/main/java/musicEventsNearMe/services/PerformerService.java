@@ -4,14 +4,14 @@ import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
 
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import musicEventsNearMe.baseRepositories.PerformerRepository;
 import musicEventsNearMe.dto.Genre;
 import musicEventsNearMe.dto.PerformerDTO;
-import musicEventsNearMe.entities.MusicEvent.Performer;
 import musicEventsNearMe.repositories.GenreRepository;
 import musicEventsNearMe.utilities.DataUtilities;
 
@@ -24,12 +24,18 @@ public class PerformerService {
     private final GenreRepository genreRepository;
 
     public PerformerDTO saveEntityAndReturnEntity(PerformerDTO performerDTO) {
-        Set<Genre> genres = new HashSet<Genre>();
-        for (Genre genre : performerDTO.getGenres()) {
-            genres.add(saveOrReturnPreviouslySavedGenre(genre));
+        return performerRepository.saveAndFlush(setEntityAndReturnEntity(performerDTO));
+    }
+
+    public PerformerDTO setEntityAndReturnEntity(PerformerDTO performerDTO) {
+        if (performerDTO.getGenres() != null) {
+            performerDTO.setGenres(performerDTO
+                    .getGenres()
+                    .stream()
+                    .map(this::saveOrReturnPreviouslySavedGenre)
+                    .collect(Collectors.toSet()));
         }
-        performerDTO.setGenres(genres);
-        return performerRepository.saveAndFlush(performerDTO);
+        return performerDTO;
     }
 
     private Genre saveOrReturnPreviouslySavedGenre(Genre genre) {
@@ -39,15 +45,22 @@ public class PerformerService {
                 .orElseGet(() -> genreRepository.saveAndFlush(genre));
     }
 
-    public Optional<PerformerDTO> getExistingPerformer(Performer currentPerformer) {
-        return performerRepository.findByIdentifier(currentPerformer.getIdentifier());
+    public Optional<PerformerDTO> getExistingPerformer(PerformerDTO importedPerformerFromAPI) {
+        return performerRepository.findByIdentifier(importedPerformerFromAPI.getIdentifier());
     }
 
-    public PerformerDTO getPerformerDTO(Performer performer) {
-        return dataUtilities.getDTOEntityFromObject(performer, PerformerDTO.class);
+    public List<PerformerDTO> updateOrSaveEntityAndReturnEntity(List<PerformerDTO> performerList) {
+        return !performerList.isEmpty() ? performerList.stream()
+                .map(performer -> getExistingPerformer(performer)
+                        .map(existingPerformer -> {
+                            PerformerDTO entity = setEntityAndReturnEntity(performer);
+                            return existingPerformer.equals(entity) ? existingPerformer
+                                    : dataUtilities.updateEntity(entity, existingPerformer,
+                                            performerRepository);
+                        })
+                        .orElseGet(() -> saveEntityAndReturnEntity(performer)))
+                .collect(Collectors.toList())
+                : Collections.emptyList();
     }
 
-    public PerformerDTO updateEntityAndReturnEntity(PerformerDTO oldPerformerDTO, PerformerDTO newPerformerDTO) {
-        return oldPerformerDTO;
-    }
 }
