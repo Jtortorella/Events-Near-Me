@@ -1,9 +1,10 @@
 import { convertEndDateTime, convertStartDateTime } from "./HandleDateTime";
 import { get } from "../Services/APIService";
 import { EventInfo, Filter, MapBounds } from "../Interfaces/AppInterfaces";
+import { LatLngBounds } from "leaflet";
 
 export async function getEventMarkers(
-  bounds: google.maps.LatLngBounds | undefined,
+  bounds: LatLngBounds | undefined,
   filter: Filter,
   setIsLoading: any,
   handleGeoCoordinatesImport: any
@@ -35,17 +36,17 @@ export async function getEventMarkers(
   }
 }
 function getMapBoundsObjectFromCurrentMapLatLngBounds(
-  bounds: google.maps.LatLngBounds,
+  bounds: LatLngBounds,
   filter: Filter
 ) {
   if (bounds) {
     const northeast = bounds.getNorthEast();
     const southwest = bounds.getSouthWest();
     return {
-      latitudeHigh: northeast.lat(),
-      latitudeLow: southwest.lat(),
-      longitudeHigh: northeast.lng(),
-      longitudeLow: southwest.lng(),
+      latitudeHigh: northeast.lat,
+      latitudeLow: southwest.lat,
+      longitudeHigh: northeast.lng,
+      longitudeLow: southwest.lng,
       startDate: filter
         ? convertStartDateTime(filter.startDate)
         : convertStartDateTime(new Date()),

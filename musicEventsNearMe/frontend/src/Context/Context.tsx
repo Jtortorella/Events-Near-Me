@@ -12,6 +12,8 @@ export interface ConcertDataContextProps {
   setIsLoading: any;
   isError: boolean;
   setIsError: any;
+  setSelectedEventId: any;
+  selectedEventId: any;
 }
 
 interface ProviderProps {
@@ -25,6 +27,10 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
   const [locations, setLocations] = useState<GeoCoordinates[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
+  const [selectedEventId, setSelectedEventId] = useState<
+  number | number[]
+>(-1);
+
   const [filter, setFilter] = useState<Filter>({
     startDate: new Date(),
     endDate: new Date(),
@@ -43,6 +49,8 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
     setIsLoading,
     isError,
     setIsError,
+    setSelectedEventId,
+    selectedEventId,
   };
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };

@@ -1,9 +1,11 @@
-export function GetCurrentUsersPosition(): Promise<google.maps.LatLng | undefined> {
+import { LatLng } from "leaflet";
+
+export async function GetCurrentUsersPosition(): Promise<LatLng | undefined> {
   return new Promise((resolve, reject) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const userPosition = new google.maps.LatLng(
+          const userPosition: LatLng = new LatLng(
             position.coords.latitude,
             position.coords.longitude
           );
@@ -16,7 +18,7 @@ export function GetCurrentUsersPosition(): Promise<google.maps.LatLng | undefine
       );
     } else {
       console.log("Error getting user position, returning default position.");
-      resolve(new google.maps.LatLng(32.7765, 79.9311));
+      resolve(new LatLng(32.7765, 79.9311));
     }
   });
 }

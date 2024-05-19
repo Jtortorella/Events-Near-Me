@@ -8,3 +8,16 @@
     background-color: transparent;
     border: none;
 }
+
+.next {
+    background-image: url('../../assets/Noun-Arrow-Abdul-Karim-Noun-Project.svg');
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+}
+
+.previous {
+    background-image: url('../../assets/Noun-Arrow-Abdul-Karim-Noun-Project.svg');
+    transform: rotate(180deg);
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+}

@@ -20,11 +20,12 @@ const DayOfWeekComponent: React.FC<DayOfWeekComponentProps> = (props) => {
 
   const handleDayFilterChange = () => {
     props.handleDayFilterChange(props.date);
-    
   };
 
+  
+
   return (
-    <button onClick={handleDayFilterChange} className={props.className}>
+    <button onClick={handleDayFilterChange} className={props.className + ' day-of-week-button'}>
       <div className="day-of-week-container">
         <div className="day-of-week-text">
           {formattedDate}

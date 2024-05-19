@@ -1,3 +1,4 @@
+
 export interface Address {
   addressType: any;
   streetAddress: string;
@@ -44,7 +45,7 @@ export interface GeoCoordinates {
   longitude: number;
 }
 
-export interface GeoLocation {
+export interface LatLng {
   latitude: number;
   longitude: number;
 }
@@ -60,7 +61,7 @@ export interface Location {
   maximumAttendeeCapacity: number;
   numUpcomingEvents: number;
   address: Address;
-  geo: GeoLocation;
+  geo: LatLng;
   permanentlyClosed: boolean;
 }
 export interface MapBounds {

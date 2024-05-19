@@ -55,7 +55,7 @@ public class DatabaseService {
 
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("page", currentPage)
-                .queryParam("geoStateIso", "US-NC")
+                .queryParam("geoStateIso", "US-SC")
                 .queryParam("eventDateFrom", getCurrentDate())
                 .queryParam("eventDateTo", getMaximumDate())
                 .queryParam("apikey", "be261bce-a04b-45fd-813b-bc31da5c73e7")
