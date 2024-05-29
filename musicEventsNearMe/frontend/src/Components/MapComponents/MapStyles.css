@@ -4,6 +4,10 @@
 .hidden {
     display: none;
 }
+.blur {
+    filter: blur(2px);
+}
+
 .grid {
     animation: slide-in 1s;
     margin: 20px 10px;

@@ -3,15 +3,19 @@ import { ConcertDataContextProps, Context } from "../../Context/Context";
 import "../../Styles/WheelStyles.css";
 
 function LoadingWheel() {
-    const props: ConcertDataContextProps | undefined = useContext(Context);
+  const props: ConcertDataContextProps | undefined = useContext(Context);
 
-    return (
-        props?.isLoading && (
-            <div className="wheelContainer center">
-                <div className="wheel"></div>
-            </div>
-        )
-    );
+  return (
+    props?.isLoading && (
+      <div className="center">
+        <div className="lds-facebook">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    )
+  );
 }
 
 export default LoadingWheel;

@@ -37,6 +37,7 @@ export interface EventInfo {
 export interface Filter {
   startDate: Date;
   endDate: Date;
+  reset: boolean;
 }
 
 export interface GeoCoordinates {

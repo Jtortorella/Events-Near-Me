@@ -8,6 +8,7 @@ import musicEventsNearMe.dto.LocationDTO;
 import musicEventsNearMe.dto.MusicEventDTO;
 import musicEventsNearMe.dto.PerformerDTO;
 import musicEventsNearMe.entities.MusicEvent;
+import musicEventsNearMe.entities.MusicEvent.Performer;
 
 @Service
 @AllArgsConstructor
@@ -22,16 +23,19 @@ public class EventService {
         musicEventService.getExistingMusicEventByIdentifier(APIResponseEvent.getIdentifier())
                 .ifPresentOrElse(existingEvent -> {
                     if (!existingEvent.equals(newEvent)) {
-                        musicEventService.updateOrSaveEntityAndReturnEntity(setLocationAndSetPerformers(newEvent));
+                        musicEventService.updateOrSaveEntityAndReturnEntity(
+                                setLocationAndSetPerformers(newEvent, APIResponseEvent.getPerformer()));
                     }
                 }, () -> {
-                    musicEventService.saveEntityAndReturnEntity(setLocationAndSetPerformers(newEvent));
+                    musicEventService.saveEntityAndReturnEntity(
+                            setLocationAndSetPerformers(newEvent, APIResponseEvent.getPerformer()));
                 });
     }
 
-    private MusicEventDTO setLocationAndSetPerformers(MusicEventDTO entityToBeSavedOrUpdated) {
+    private MusicEventDTO setLocationAndSetPerformers(MusicEventDTO entityToBeSavedOrUpdated,
+            List<Performer> performerList) {
         entityToBeSavedOrUpdated.setLocation(updateLocationOrSaveLocation(entityToBeSavedOrUpdated.getLocation()));
-        entityToBeSavedOrUpdated.setPerformer(updatePerformerOrSavePerformer(entityToBeSavedOrUpdated.getPerformer()));
+        entityToBeSavedOrUpdated.setPerformer(updatePerformerOrSavePerformer(performerList));
         return entityToBeSavedOrUpdated;
     }
 
@@ -39,7 +43,7 @@ public class EventService {
         return locationDTO != null ? locationService.updateOrSaveEntityAndReturnEntity(locationDTO) : null;
     }
 
-    private List<PerformerDTO> updatePerformerOrSavePerformer(List<PerformerDTO> performerList) {
+    private List<PerformerDTO> updatePerformerOrSavePerformer(List<Performer> performerList) {
         return performerService.updateOrSaveEntityAndReturnEntity(performerList);
     }
 }

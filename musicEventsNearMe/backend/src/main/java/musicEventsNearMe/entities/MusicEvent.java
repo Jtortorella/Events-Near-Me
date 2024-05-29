@@ -166,6 +166,10 @@ public class MusicEvent {
         private boolean dateIsConfirmed;
     }
 
+    List<String> getGenre(Performer performer) {
+        return performer.getGenre();
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -191,6 +195,11 @@ public class MusicEvent {
         private String image;
         private String datePublished;
         private String dateModified;
+    }
+
+    public List<Performer> getPerformer() {
+        // Assuming performer has a method getGenres() that returns a List<String>
+        return performer != null ? performer : null;
     }
 
     @Data

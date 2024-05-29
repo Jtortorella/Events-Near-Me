@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ConcertDataContextProps, Context } from "../../Context/Context";
-
+import './ToasterStyles.css'
 function Toaster() {
   const props: ConcertDataContextProps | undefined = useContext(Context);
 
@@ -13,9 +13,11 @@ function Toaster() {
   };
 
   return props?.isError ? (
-    <div className="center" onClick={handleClick}>
-      {"Error!"}
-    </div>
+    <div className="bottom-right center toaster" onClick={handleClick}>
+      <h3>"Error!"</h3>
+      <p>Oops, something went wrong. Please try again later.</p>
+      
+</div>
   ) : null;
 }
 

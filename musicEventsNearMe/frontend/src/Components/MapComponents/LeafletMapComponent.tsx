@@ -12,14 +12,24 @@ export default function LeafletMapComponent() {
   const [mapCenter, setMapCenter] = useState<LatLng | undefined>(
     new LatLng(32.7765, -79.9311)
   );
-
-  const { setIsLoading, selectedEventId }: any = useContext(Context);
+  const { setIsLoading, selectedEventId, isLoading, isError}: any = useContext(Context);
 
   useEffect(() => {
     setIsLoading(true);
     handleDefaultCenter();
     setIsLoading(false);
   }, []);
+
+  const setClasses = () => {
+    let styles = "";
+    if (selectedEventId != -1) {
+      styles += "grid";
+    }
+    if (isLoading == true || isError == true) {
+      styles += " blur";
+    }
+    return styles
+  }
 
   async function handleDefaultCenter(): Promise<LatLng | undefined> {
     try {
@@ -31,8 +41,8 @@ export default function LeafletMapComponent() {
   }
 
   return (
-    <div id="container" className={selectedEventId != -1 ? "grid" : ""}>
-      <InfoWindowContent />
+<div id="container" className={setClasses()}  >
+<InfoWindowContent />
       <MapContainer
         style={{ height: "65vh", width: "80vw", margin: "0 auto" }}
         center={mapCenter}

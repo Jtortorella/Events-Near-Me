@@ -7,3 +7,8 @@
     background-color: white;
     margin: 5px;
 }
+
+.day-of-week-button:hover {
+    cursor: pointer;
+}
+

@@ -4,25 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 
-import musicEventsNearMe.dto.Genre;
-
 public class ObjectConverterOverrides {
-    public Converter<List<String>, Set<Genre>> getGenreConverter() {
-        return new Converter<List<String>, Set<Genre>>() {
-            @Override
-            public Set<Genre> convert(MappingContext<List<String>, Set<Genre>> context) {
-                return context.getSource().stream().map((value) -> new Genre(null, value))
-                        .collect(Collectors.toSet());
-            }
-        };
-    }
 
     public Converter<String, LocalDateTime> getStartDateConverter() {
         return new Converter<String, LocalDateTime>() {

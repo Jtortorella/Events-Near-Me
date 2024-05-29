@@ -1,12 +1,25 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DayOfWeekComponent from "./DayOfWeekComponent";
 import { Context } from "../../Context/Context";
+import { Filter } from "../../Interfaces/AppInterfaces";
+
 import "./WeekComponent.css";
 export const WeekComponent = (props: any) => {
   const [offSetTodaysDate, setOffSetTodaysDate] = useState(0);
 
-  const { filter }: any = useContext(Context);
+  const { filter, setFilter }: any = useContext(Context);
 
+  useEffect(() => {
+    console.log(filter.reset)
+    if (filter.reset == true) {
+      setOffSetTodaysDate(0);
+      generateWeek()
+      setFilter((prev: Filter) => ({
+        ...prev,
+        reset: false,
+      }));
+    }
+  }, [filter.reset])
 
   const generateWeek = () => {
     const elementArray = [];

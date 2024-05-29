@@ -8,7 +8,7 @@ import { LatLngBounds } from "leaflet";
 import { MarkerComponent } from "./MarkerComponent";
 
 function MapComponent() {
-  const { handleGeoCoordinatesImport, setIsLoading, filter}: any =
+  const { handleGeoCoordinatesImport, setIsLoading, filter, setIsError}: any =
     useContext(Context);
 
     useEffect(() => {
@@ -30,7 +30,7 @@ function MapComponent() {
   const handleMapBoundChangeOrFilterChange = async (
     bounds: LatLngBounds
   ): Promise<void> =>
-    getEventMarkers(bounds, filter, setIsLoading, handleGeoCoordinatesImport);
+    getEventMarkers(bounds, filter, setIsLoading, handleGeoCoordinatesImport, setIsError);
 
   return (
     <div>

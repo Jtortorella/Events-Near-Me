@@ -10,14 +10,30 @@
 }
 
 .next {
-    background-image: url('../../assets/Noun-Arrow-Abdul-Karim-Noun-Project.svg');
+    background-image: url('../../assets/Noun-Arrow-Vallone-Design-Noun-Project.svg');
+    transform: rotate(0deg);
     background-position: center; /* Center the image */
+    transform-origin: center;
     background-repeat: no-repeat; /* Do not repeat the image */
+    height: 40px;
+    width: 40px;
+    align-self: end;
 }
 
 .previous {
-    background-image: url('../../assets/Noun-Arrow-Abdul-Karim-Noun-Project.svg');
+    background-image: url('../../assets/Noun-Arrow-Vallone-Design-Noun-Project.svg');
     transform: rotate(180deg);
     background-position: center; /* Center the image */
+    transform-origin: center;
     background-repeat: no-repeat; /* Do not repeat the image */
+    height: 40px;
+    width: 40px;
+    align-self: top;
+}
+
+.next:hover {
+    cursor: pointer;
+}
+.previous {
+    cursor: pointer;
 }

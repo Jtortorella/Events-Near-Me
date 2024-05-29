@@ -10,6 +10,7 @@ function FilterComponent() {
     setFilter({
       startDate: new Date(),
       endDate: new Date(),
+      reset: true,
     });
   }
   
@@ -31,7 +32,7 @@ function FilterComponent() {
               : new Date(filter.startDate);
           endDate.setHours(23, 59, 59);
 
-          return { startDate, endDate };
+          return { startDate, endDate, reset : false };
         } else if (!filter.startDate && !filter.endDate) {
           // Both are not initialized
           const startDate = new Date(event);
@@ -49,7 +50,7 @@ function FilterComponent() {
             compareDates(event, filter.endDate) === -1
               ? new Date(event)
               : new Date(filter.endDate);
-          return { startDate, endDate };
+          return { startDate, endDate,  reset : false };
         } else {
           // Handle other cases or return prev if none match
           return prev;

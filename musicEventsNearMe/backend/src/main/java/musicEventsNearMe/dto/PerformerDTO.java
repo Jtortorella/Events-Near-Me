@@ -1,9 +1,8 @@
 package musicEventsNearMe.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -41,7 +40,7 @@ public class PerformerDTO implements BaseEntity {
     private LocalDateTime timeRecordWasEntered;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Genre> genres;
+    private List<Genre> genres;
 
     @PrePersist
     private void beforePersist() {

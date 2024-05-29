@@ -18,7 +18,6 @@ public class DatabaseService {
 
     private final EventService eventService;
 
-    @SuppressWarnings("null")
     public void updateDatabaseWithConcertData() {
         try {
             ResponseEntity<EventApiResponse> response = new RestTemplate().getForEntity(buildApiUrl(0),
@@ -26,8 +25,12 @@ public class DatabaseService {
             Optional.ofNullable(response.getBody())
                     .ifPresent(body -> {
                         body.getEvents().forEach((event) -> eventService.updateOrCreateMusicEvent(event));
-                        for (int currentPage = 1; currentPage < body.getPagination().getTotalPages(); currentPage++) {
+                        for (int currentPage = 1; currentPage <= body.getPagination().getTotalPages(); currentPage++) {
                             try {
+                                System.out.println("CURRENTPAGE");
+                                System.out.println(currentPage);
+                                System.out.println(body.getPagination().getTotalPages());
+
                                 fetchEventsForPage(buildApiUrl(currentPage));
                             } catch (RestClientException e) {
                                 System.err.println("Error message: " + e.getMessage());
@@ -43,7 +46,6 @@ public class DatabaseService {
         }
     }
 
-    @SuppressWarnings("null")
     private void fetchEventsForPage(String url) throws RestClientException {
         ResponseEntity<EventApiResponse> response = new RestTemplate().getForEntity(url, EventApiResponse.class);
         Optional.ofNullable(response.getBody())
@@ -52,10 +54,9 @@ public class DatabaseService {
 
     private String buildApiUrl(int currentPage) {
         String apiUrl = "https://www.jambase.com/jb-api/v1/events";
-
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("page", currentPage)
-                .queryParam("geoStateIso", "US-SC")
+                .queryParam("geoStateIso", "US-NC")
                 .queryParam("eventDateFrom", getCurrentDate())
                 .queryParam("eventDateTo", getMaximumDate())
                 .queryParam("apikey", "be261bce-a04b-45fd-813b-bc31da5c73e7")

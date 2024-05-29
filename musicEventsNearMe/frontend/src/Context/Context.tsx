@@ -34,6 +34,7 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
   const [filter, setFilter] = useState<Filter>({
     startDate: new Date(),
     endDate: new Date(),
+    reset: false,
   });
 
   const handleGeoCoordinatesImport = (newCoordinates: GeoCoordinates[]) => {

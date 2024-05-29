@@ -7,6 +7,7 @@ export async function getEventMarkers(
   bounds: LatLngBounds | undefined,
   filter: Filter,
   setIsLoading: any,
+  setIsError : any,
   handleGeoCoordinatesImport: any
 ) {
   if (bounds) {
@@ -30,9 +31,9 @@ export async function getEventMarkers(
         })
       );
     } catch (error) {
-      console.error(error);
-      setIsLoading(false);
+      setIsError(true);
     }
+    setIsLoading(false);
   }
 }
 function getMapBoundsObjectFromCurrentMapLatLngBounds(

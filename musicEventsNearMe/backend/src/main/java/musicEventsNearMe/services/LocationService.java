@@ -1,5 +1,6 @@
 package musicEventsNearMe.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -87,5 +88,13 @@ public class LocationService {
                             : dataUtilities.updateEntity(entity, existingLocation, locationRepository);
                 })
                 .orElseGet(() -> saveEntityAndReturnEntity(newLocation));
+    }
+
+    public Optional<List<LocationDTO>> searchByLocationName(String name) {
+        return locationRepository.searchByLocationName(name);
+    }
+
+    public Optional<List<Object[]>> searchByAddress(String address) {
+        return locationRepository.searchByAddress(address);
     }
 }

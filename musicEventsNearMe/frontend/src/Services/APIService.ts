@@ -19,10 +19,10 @@ async function makeRequest(method: string, props: APIRequestProps, data?: any): 
     }
     try {
         let response: any = await fetch(props.url, requestOptions);
-        const responseData = await response.json();
+        const responseData: any = await response.json();
         return responseData;
     } catch (err) {
-        console.log(err);
+        return err;
     }
 }
 

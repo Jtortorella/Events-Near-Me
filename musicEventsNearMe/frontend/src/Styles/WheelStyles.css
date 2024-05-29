@@ -1,50 +1,49 @@
 .center {
-    position: fixed;
-    top: 50%;
-    right: 50%;
-}
-.wheelContainer {
-    height: 10vh;
-    width: 10vh;
-    background-color: black;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: gradientAnimation .5s infinite ease-in-out;
-
-}
-.wheel {
-    height: 7vh;
-    width: 7vh;
-    background-color: white;
-    border-radius: 50%;
+    position: absolute;
+    top: 50%; right: 50%;
+    transform: translate(50%,-50%);
+    z-index: 3;
 }
 
-@keyframes gradientAnimation {
-    0% {
-        background: linear-gradient(to left top, white 0%, white 10%, black 25%, black 100%);
-    }
-    12.5% {
-        background: linear-gradient(to top, white 0%, white 10%, black 25%, black 100%);
-    }
-    25% {
-        background: linear-gradient(to right top, white 0%, white 10%, black 25%, black 100%);
-    }
-    37.5% {
-        background: linear-gradient(to right, white 0%, white 10%, black 25%, black 100%);
-    }
-    50% {
-        background: linear-gradient(to right bottom, white 0%, white 10%, black 25%, black 100%);
-    }
-    62.5% {
-        background: linear-gradient(to bottom, white 0%, white 10%, black 25%, black 100%);
-    }
-    75% {
-        background: linear-gradient(to left bottom, white 0%, white 10%, black 25%, black 100%);
-    }
-    87.5% {
-        background: linear-gradient(to left, white 0%, white 10%, black 25%, black 100%);
-
-    }
+.lds-facebook,
+.lds-facebook div {
+  box-sizing: border-box;
 }
+.lds-facebook {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-facebook div {
+  display: inline-block;
+  position: absolute;
+  left: 8px;
+  width: 16px;
+  background: currentColor;
+  animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+.lds-facebook div:nth-child(1) {
+  left: 8px;
+  animation-delay: -0.24s;
+}
+.lds-facebook div:nth-child(2) {
+  left: 32px;
+  animation-delay: -0.12s;
+}
+.lds-facebook div:nth-child(3) {
+  left: 56px;
+  animation-delay: 0s;
+}
+@keyframes lds-facebook {
+  0% {
+    top: 8px;
+    height: 64px;
+  }
+  50%, 100% {
+    top: 24px;
+    height: 32px;
+  }
+}
+
+
