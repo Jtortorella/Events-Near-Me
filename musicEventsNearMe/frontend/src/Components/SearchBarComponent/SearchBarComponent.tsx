@@ -1,12 +1,43 @@
+import './SearchBarStyles.css'
+
+import { useContext, useEffect, useState } from "react";
+import { get } from "../../Services/APIService";
+import { KeywordSearchHitContainer } from "./KeywordSearchHitContainer";
+import { Context } from "../../Context/Context";
+
 
 function SearchBarComponent() {
-    function checkDatabaseForMatchingTerms(e : any): any {
-        
+  const { setKeyWordSearchResponse }: any = useContext(Context);
+
+  async function checkDatabaseForMatchingTerms(KeyWord: string): Promise<any> {
+    if (KeyWord.trim() != "") {
+      setKeyWordSearchResponse(await get({ url: `http://localhost:8080/search/${KeyWord}` }));
     }
+    else {
+      setKeyWordSearchResponse([]);
+    }
+  }
 
   return (
-    <><h2>SearchBarComponent</h2><input type="input" onChange={(e) => checkDatabaseForMatchingTerms(e)}></input></>
-  )
+    <>
+    <div className="search-bar-component-container">
+      <div className='search-bar-container'>
+      <input
+        className="search-bar"
+        type="input"
+        placeholder='e.g. Genre, Artist, Location'
+        onChange={(inputChange) =>
+          checkDatabaseForMatchingTerms(inputChange.target.value)
+        }
+      >
+      </input>
+      <i className="SEARCH icon"></i>
+      </div>
+
+      <KeywordSearchHitContainer/>
+      </div>
+    </>
+  );
 }
 
-export default SearchBarComponent
+export default SearchBarComponent;

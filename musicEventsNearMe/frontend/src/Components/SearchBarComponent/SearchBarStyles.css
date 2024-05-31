@@ -1,0 +1,102 @@
+/* General Styles */
+.search-bar-component-container {
+    width: 50vw;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.search-bar-container {
+    display: flex;
+    flex-direction: row;
+    height: 5vh;
+    border-radius: 20px;
+    max-width: 50vw;
+    border: 2px solid blue;
+    justify-content: center;
+    margin: 10px;
+    padding: 10px;
+}
+
+.search-bar {
+    border: 0;
+    width: 100%;
+    margin: 0 0 0 10px;
+    height: 100%;
+}
+
+.search-bar:focus {
+    border: none;
+    outline-width: 0;
+}
+
+/* Search Hit Container Styles */
+.search-hits-container {
+    padding: 10px;
+    max-height: 50vh;
+    /* Increased max-height for better visibility */
+    height: auto;
+    /* Allow container to adjust height based on content */
+    overflow-y: auto;
+    /* Show vertical scrollbar when needed */
+    border: 1px solid blue;
+    border-radius: 20px;
+    overflow-x: hidden;
+    /* Hide horizontal scrollbar */
+}
+
+/* Search Hit Styles */
+.search-hit-anchor-tag-container {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    /* Vertically center the content */
+    justify-content: space-between;
+    margin: 20px;
+}
+
+.search-hit {
+    color: black;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    /* Vertically center the content */
+    cursor: pointer;
+    /* Change cursor to pointer on hover */
+}
+
+/* Icon Styles */
+.icon {
+    height: 30px;
+    width: 50px;
+    background-repeat: no-repeat;
+    margin-right: 10px;
+    /* Add some spacing between icon and text */
+}
+
+.PERFORMER {
+    background-image: url('../../assets/performer_icon.svg');
+}
+
+.LOCATION {
+    background-image: url('../../assets/location_icon.svg');
+}
+
+.SEARCH {
+    background-image: url('../../assets/search_icon.svg');
+    height: 100%;
+    width: 100%;
+    background-repeat: no-repeat;
+    margin-right: 10px;
+    background-position: 95% -50%;
+
+}
+
+.ADDRESS {
+    background-image: url('../../assets/address_icon.svg');
+}
+
+.GENRE {
+    background-image: url('../../assets/genre_icon.svg');
+}

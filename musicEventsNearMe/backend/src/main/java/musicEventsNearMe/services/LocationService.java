@@ -90,11 +90,11 @@ public class LocationService {
                 .orElseGet(() -> saveEntityAndReturnEntity(newLocation));
     }
 
-    public Optional<List<LocationDTO>> searchByLocationName(String name) {
+    public Optional<List<String>> searchByLocationName(String name) {
         return locationRepository.searchByLocationName(name);
     }
 
-    public Optional<List<Object[]>> searchByAddress(String address) {
+    public Optional<List<String>> searchByAddress(String address) {
         return locationRepository.searchByAddress(address);
     }
 }

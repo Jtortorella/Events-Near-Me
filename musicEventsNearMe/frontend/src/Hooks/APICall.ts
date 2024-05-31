@@ -17,7 +17,7 @@ export async function getEventMarkers(
     try {
       handleGeoCoordinatesImport(
         await get({
-          url: `http://localhost:8080/concertData/events?latitudeHigh=${encodeURIComponent(
+          url: `http://localhost:8080/events?latitudeHigh=${encodeURIComponent(
             mapBounds!.latitudeHigh
           )}&latitudeLow=${encodeURIComponent(
             mapBounds!.latitudeLow
@@ -61,7 +61,7 @@ function getMapBoundsObjectFromCurrentMapLatLngBounds(
 export async function getEventDetails(
   id: number | number[]
 ): Promise<EventInfo[] | undefined> {
-  const url = `http://localhost:8080/concertData/event/`;
+  const url = `http://localhost:8080/event/`;
   if (Array.isArray(id)) {
     try {
       const responses = await Promise.all(

@@ -27,10 +27,6 @@ public class DatabaseService {
                         body.getEvents().forEach((event) -> eventService.updateOrCreateMusicEvent(event));
                         for (int currentPage = 1; currentPage <= body.getPagination().getTotalPages(); currentPage++) {
                             try {
-                                System.out.println("CURRENTPAGE");
-                                System.out.println(currentPage);
-                                System.out.println(body.getPagination().getTotalPages());
-
                                 fetchEventsForPage(buildApiUrl(currentPage));
                             } catch (RestClientException e) {
                                 System.err.println("Error message: " + e.getMessage());
@@ -56,7 +52,7 @@ public class DatabaseService {
         String apiUrl = "https://www.jambase.com/jb-api/v1/events";
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("page", currentPage)
-                .queryParam("geoStateIso", "US-NC")
+                .queryParam("geoStateIso", "US-SC")
                 .queryParam("eventDateFrom", getCurrentDate())
                 .queryParam("eventDateTo", getMaximumDate())
                 .queryParam("apikey", "be261bce-a04b-45fd-813b-bc31da5c73e7")

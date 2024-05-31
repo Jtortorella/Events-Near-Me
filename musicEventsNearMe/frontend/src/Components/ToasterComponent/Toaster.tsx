@@ -12,13 +12,13 @@ function Toaster() {
     props?.setIsError(false);
   };
 
-  return props?.isError ? (
+  return props!.isError == true && (
     <div className="bottom-right center toaster" onClick={handleClick}>
       <h3>"Error!"</h3>
       <p>Oops, something went wrong. Please try again later.</p>
       
 </div>
-  ) : null;
+  ) 
 }
 
 export default Toaster;

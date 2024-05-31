@@ -14,9 +14,14 @@ import musicEventsNearMe.interfaces.BaseRepository;
 public interface LocationRepository extends BaseRepository<LocationDTO> {
         Optional<LocationDTO> findByIdentifier(String identifier);
 
-        @Query(value = "SELECT * FROM LOCATIONs WHERE name LIKE %:name%", nativeQuery = true)
-        Optional<List<LocationDTO>> searchByLocationName(@Param("name") String name);
+        @Query(value = "SELECT NAME, ' LOCATION' AS TYPE FROM LOCATIONS WHERE name LIKE %:name% LIMIT 2", nativeQuery = true)
+        Optional<List<String>> searchByLocationName(@Param("name") String name);
 
-        @Query(value = "SELECT * FROM Locations JOIN Addresses ON Locations.address_id = Addresses.address_id WHERE Addresses.street_address LIKE %:address%", nativeQuery = true)
-        Optional<List<Object[]>> searchByAddress(@Param("address") String address);
+        @Query(value = "SELECT Addresses.Street_Address, ' ADDRESS' AS TYPE "
+                        +
+                        "FROM Locations " +
+                        "JOIN Addresses ON Locations.Address_Id = Addresses.Address_Id " +
+                        "WHERE Addresses.Street_Address LIKE %:address% LIMIT 2", nativeQuery = true)
+        Optional<List<String>> searchByAddress(@Param("address") String address);
+
 }

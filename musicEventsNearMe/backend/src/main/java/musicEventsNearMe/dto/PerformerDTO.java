@@ -3,9 +3,9 @@ package musicEventsNearMe.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -29,8 +29,6 @@ public class PerformerDTO implements BaseEntity {
     private String name;
     @JsonIgnore
     private String identifier;
-    @Column(columnDefinition = "VARCHAR(500)")
-    private String url;
     private String image;
     @JsonIgnore
     private String datePublished;
@@ -38,7 +36,6 @@ public class PerformerDTO implements BaseEntity {
     private String dateModified;
     @JsonIgnore
     private LocalDateTime timeRecordWasEntered;
-
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Genre> genres;
 
@@ -56,7 +53,6 @@ public class PerformerDTO implements BaseEntity {
         PerformerDTO that = (PerformerDTO) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(identifier, that.identifier) &&
-                Objects.equals(url, that.url) &&
                 Objects.equals(image, that.image) &&
                 Objects.equals(datePublished, that.datePublished) &&
                 Objects.equals(dateModified, that.dateModified) &&

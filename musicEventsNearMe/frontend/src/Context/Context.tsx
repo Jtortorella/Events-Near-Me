@@ -14,6 +14,8 @@ export interface ConcertDataContextProps {
   setIsError: any;
   setSelectedEventId: any;
   selectedEventId: any;
+  keyWordSearchResponse: any;
+  setKeyWordSearchResponse: any;
 }
 
 interface ProviderProps {
@@ -30,6 +32,7 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
   const [selectedEventId, setSelectedEventId] = useState<
   number | number[]
 >(-1);
+const [keyWordSearchResponse, setKeyWordSearchResponse] = useState<string[]>([]);
 
   const [filter, setFilter] = useState<Filter>({
     startDate: new Date(),
@@ -52,6 +55,8 @@ const Provider: React.FC<ProviderProps> = ({ children }) => {
     setIsError,
     setSelectedEventId,
     selectedEventId,
+    keyWordSearchResponse,
+    setKeyWordSearchResponse
   };
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };

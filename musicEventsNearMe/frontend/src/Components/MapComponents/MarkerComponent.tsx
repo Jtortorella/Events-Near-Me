@@ -10,6 +10,10 @@ export const MarkerComponent = () => {
   const { locations, setIsLoading , setSelectedEventId}: any = useContext(Context);
   const [markers, setMarkers] = useState<MarkerInformation[]>([]);
 
+  useEffect(() => {
+    createMarkers();
+    setIsLoading(false);
+  }, []);
 
   useEffect(() => {
     createMarkers();
@@ -108,9 +112,9 @@ export const MarkerComponent = () => {
             },
           }}
         >
-
         </Marker>
       ))}
     </>
-  );
+);
+
 };

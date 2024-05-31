@@ -25,12 +25,10 @@ function MapComponent() {
     },
   });
 
-
-
   const handleMapBoundChangeOrFilterChange = async (
     bounds: LatLngBounds
   ): Promise<void> =>
-    getEventMarkers(bounds, filter, setIsLoading, handleGeoCoordinatesImport, setIsError);
+    getEventMarkers(bounds, filter, setIsLoading, setIsError, handleGeoCoordinatesImport);
 
   return (
     <div>

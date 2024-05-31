@@ -41,10 +41,9 @@ public class PerformerService {
     }
 
     private Genre saveOrReturnPreviouslySavedGenre(String genreName) {
-        return genreRepository
-                .findByGenreName(
-                        genreName)
-                .orElseGet(() -> genreRepository.saveAndFlush(new Genre(null, String.join("-", genreName.split("-")))));
+        String formattedName = String.join(" ", genreName.split("-")).toUpperCase();
+        return genreRepository.findByGenreName(formattedName)
+                .orElseGet(() -> genreRepository.saveAndFlush(new Genre(null, formattedName)));
     }
 
     public Optional<PerformerDTO> getExistingPerformer(Performer importedPerformerFromAPI) {
@@ -68,12 +67,12 @@ public class PerformerService {
         }
     }
 
-    public Optional<List<PerformerDTO>> searchForPerformer(String name) {
-        return performerRepository.searchByPerformerName(name);
+    public Optional<List<String>> searchForPerformer(String keyword) {
+        return performerRepository.searchByPerformerName(keyword);
     }
 
-    public Optional<List<Genre>> searchForGenre(String name) {
-        return genreRepository.searchByGenreName(name);
+    public Optional<List<String>> searchForGenre(String keyword) {
+        return genreRepository.searchByGenreName(keyword);
     }
 
 }
