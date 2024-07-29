@@ -1,0 +1,2 @@
+docker build -t backend .
+docker run --rm -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/music_events_near_me -e SPRING_DATASOURCE_USERNAME=root -e SPRING_DATASOURCE_PASSWORD= backend

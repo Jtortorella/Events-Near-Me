@@ -18,6 +18,7 @@ import musicEventsNearMe.dto.AddressCountry;
 import musicEventsNearMe.dto.AddressRegion;
 import musicEventsNearMe.dto.GeoCoordinate;
 import musicEventsNearMe.dto.LocationDTO;
+import musicEventsNearMe.entities.KeyWord;
 
 @Service
 @Transactional
@@ -90,11 +91,11 @@ public class LocationService {
                 .orElseGet(() -> saveEntityAndReturnEntity(newLocation));
     }
 
-    public Optional<List<String>> searchByLocationName(String name) {
-        return locationRepository.searchByLocationName(name);
+    public Optional<List<KeyWord>> searchByLocationName(String name) {
+        return DataUtilities.convertToKeyWordResponse(locationRepository.searchByLocationName(name));
     }
 
-    public Optional<List<String>> searchByAddress(String address) {
-        return locationRepository.searchByAddress(address);
+    public Optional<List<KeyWord>> searchByAddress(String address) {
+        return DataUtilities.convertToKeyWordResponse(locationRepository.searchByAddress(address));
     }
 }

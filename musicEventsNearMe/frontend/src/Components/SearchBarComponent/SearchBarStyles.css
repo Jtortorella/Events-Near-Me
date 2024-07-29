@@ -34,7 +34,7 @@
 /* Search Hit Container Styles */
 .search-hits-container {
     padding: 10px;
-    max-height: 50vh;
+    max-height: 20vh;
     /* Increased max-height for better visibility */
     height: auto;
     /* Allow container to adjust height based on content */

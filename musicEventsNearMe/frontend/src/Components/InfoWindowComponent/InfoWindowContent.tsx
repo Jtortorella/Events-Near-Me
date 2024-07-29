@@ -1,31 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
+import { ConcertDataContext } from "../../Context/Context";
 import { convertLocalDateTimeToDateTime } from "../../Hooks/HandleDateTime";
-import { EventInfo } from "../../Interfaces/AppInterfaces";
-import { getEventDetails } from "../../Hooks/APICall";
-import { Context } from "../../Context/Context";
+import { Performer } from "../../Interfaces/AppInterfaces";
+import React from "react";
 
 const InfoWindowContent: React.FC = () => {
-  const [infoArr, setInfoArr] = useState<EventInfo[]>([]);
   const [index, setIndex] = useState<number>(0);
-  const { selectedEventId }: any = useContext(Context);
+  const { infoArr }: any = useContext(ConcertDataContext);
+  
 
-  useEffect(() => {
-    if (selectedEventId != -1) {
-      const fetchData = async () => {
-        try {
-          const resolvedInfo = await getEventDetails(selectedEventId);
-          if (resolvedInfo) {
-            setInfoArr(resolvedInfo);
-          }
-        } catch (error) {
-          console.error("Error fetching event info:", error);
-        }
-      };
-      fetchData();
-    }
-  }, [selectedEventId]);
-
-  if (!infoArr || infoArr.length === 0) {
+  if (!infoArr || infoArr.length === 0 || infoArr[index] == undefined) {
     return null;
   }
 
@@ -36,19 +20,24 @@ const InfoWindowContent: React.FC = () => {
   };
 
   return (
-    selectedEventId != -1 &&
+    
     <aside id="infoWindowContainer">
       {name}
       <br />
       {convertLocalDateTimeToDateTime(startDate)}
       <br />
       <br />
-      PERFORMERS:
-      {performer.map((performer, idx) => (
-        <p key={idx + 1}>
-          {idx + 1}: {performer.name} <br />
-        </p>
-      ))}
+      {performer && performer.length > 0 && (
+        <>
+          PERFORMERS:
+          {performer.map((performer: Performer, idx: number) => (
+            <p key={idx + 1}>
+              {idx + 1}: {performer.name} <br />
+            </p>
+          ))}
+          <br />
+        </>
+      )}
       <br />
       {location.name}
       <br />

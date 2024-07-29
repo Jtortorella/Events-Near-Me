@@ -1,35 +1,27 @@
-import './SearchBarStyles.css'
+import "./SearchBarStyles.css";
 
 import { useContext, useEffect } from "react";
-import { Context } from "../../Context/Context";
+import { ConcertDataContext } from "../../Context/Context";
 import SearchHit from "./SearchHit";
+import { KeyWordResult } from "../../Interfaces/AppInterfaces";
+import React from "react";
 
 export function KeywordSearchHitContainer() {
+  const { keyWordSearchResponse }: any = useContext(ConcertDataContext);
+  useEffect(() => {}, [keyWordSearchResponse]);
 
-    const { keyWordSearchResponse }: any = useContext(Context);
-    useEffect(() => {
-        renderSearchBarHits()
-    }, [keyWordSearchResponse])
-
-    function renderSearchBarHits() {
-
-
-
-        return keyWordSearchResponse.map((value: string) => (
-            <SearchHit 
-                value={value.split(', ')[0]}
-                class={value.split(', ')[1]}
-            />
-          ))
-
-    }
-    return (
-        <div className={keyWordSearchResponse.length > 0 ? "search-hits-container" : ""}>
-
-        {renderSearchBarHits()}
-        </div>
-
-    );
-  }
-
-
+  return (
+    keyWordSearchResponse &&
+    keyWordSearchResponse.length > 0 && (
+      <div className="search-hits-container">
+        {keyWordSearchResponse.map((keyWordResult: KeyWordResult, idx: number) => (
+          <SearchHit
+            key={keyWordResult.value + idx} // Assuming 'value' is unique. Otherwise, use a unique identifier.
+            value={keyWordResult.value}
+            keyWordType={keyWordResult.keyWordType}
+          />
+        ))}
+      </div>
+    )
+  );
+}

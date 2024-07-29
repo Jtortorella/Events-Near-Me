@@ -2,10 +2,12 @@ package musicEventsNearMe.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class GeoCoordinatesResponeObject {
+@NoArgsConstructor
+public class GeoCoordinatesResponseObject {
     private Long musicEventId;
     private double latitude;
     private double longitude;

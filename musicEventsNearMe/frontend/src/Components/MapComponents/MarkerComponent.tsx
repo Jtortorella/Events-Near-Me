@@ -3,11 +3,15 @@ import {
   GeoCoordinates,
   MarkerInformation,
 } from "../../Interfaces/AppInterfaces";
-import { Context } from "../../Context/Context";
 import { Marker } from "react-leaflet";
+import { getEventDetails } from "../../Hooks/APICall";
+import { ConcertDataContext } from "../../Context/Context";
+import {Icon} from 'leaflet';
+import React from "react";
 
 export const MarkerComponent = () => {
-  const { locations, setIsLoading , setSelectedEventId}: any = useContext(Context);
+  const { locations, setIsLoading,  setSelectedEventId }: any =
+    useContext(ConcertDataContext);
   const [markers, setMarkers] = useState<MarkerInformation[]>([]);
 
   useEffect(() => {
@@ -23,22 +27,24 @@ export const MarkerComponent = () => {
   const createMarkers = () => {
     let currentGeoLocationOfEvents: GeoCoordinates[] = [];
     let currentMarkers: MarkerInformation[] = [];
-    for (const location of locations || []) {
-      const index = checkIfLocationAlreadyExists(
-        location,
-        currentGeoLocationOfEvents
-      );
-      if (index === -1) {
-        currentGeoLocationOfEvents = handleSetGeoLocation(
+    if (Array.isArray(locations)) {
+      for (const location of locations || []) {
+        const index = checkIfLocationAlreadyExists(
           location,
           currentGeoLocationOfEvents
         );
-        currentMarkers = handleAddNewMarker(location, currentMarkers);
-      } else {
-        currentMarkers = handleUpdateMarker(location, currentMarkers);
+        if (index === -1) {
+          currentGeoLocationOfEvents = handleSetGeoLocation(
+            location,
+            currentGeoLocationOfEvents
+          );
+          currentMarkers = handleAddNewMarker(location, currentMarkers);
+        } else {
+          currentMarkers = handleUpdateMarker(location, currentMarkers);
+        }
       }
+      setMarkers(currentMarkers);
     }
-    setMarkers(currentMarkers);
   };
 
   const handleSetGeoLocation = (
@@ -96,6 +102,10 @@ export const MarkerComponent = () => {
     return currentMarkers;
   };
 
+  function handleMarkerClick(musicEventId: number | number[]) {
+      setSelectedEventId(musicEventId);
+  
+  }
 
   return (
     <>
@@ -108,13 +118,11 @@ export const MarkerComponent = () => {
           }}
           eventHandlers={{
             click: () => {
-              setSelectedEventId(marker.musicEventId);
+              handleMarkerClick(marker.musicEventId);
             },
           }}
-        >
-        </Marker>
+        ></Marker>
       ))}
     </>
-);
-
+  );
 };

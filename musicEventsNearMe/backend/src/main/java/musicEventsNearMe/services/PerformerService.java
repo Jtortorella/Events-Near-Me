@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import musicEventsNearMe.baseRepositories.PerformerRepository;
 import musicEventsNearMe.dto.Genre;
 import musicEventsNearMe.dto.PerformerDTO;
+import musicEventsNearMe.entities.KeyWord;
 import musicEventsNearMe.entities.MusicEvent.Performer;
 import musicEventsNearMe.repositories.GenreRepository;
 import musicEventsNearMe.utilities.DataUtilities;
@@ -67,12 +68,12 @@ public class PerformerService {
         }
     }
 
-    public Optional<List<String>> searchForPerformer(String keyword) {
-        return performerRepository.searchByPerformerName(keyword);
+    public Optional<List<KeyWord>> searchForPerformer(String keyword) {
+        return DataUtilities.convertToKeyWordResponse(performerRepository.searchByPerformerName(keyword));
     }
 
-    public Optional<List<String>> searchForGenre(String keyword) {
-        return genreRepository.searchByGenreName(keyword);
+    public Optional<List<KeyWord>> searchForGenre(String keyword) {
+        return DataUtilities.convertToKeyWordResponse(genreRepository.searchByGenreName(keyword));
     }
 
 }

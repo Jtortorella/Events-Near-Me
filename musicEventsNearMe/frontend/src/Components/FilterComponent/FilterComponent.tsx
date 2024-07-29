@@ -1,17 +1,23 @@
 import { useContext } from "react";
 import { WeekComponent } from "./WeekComponent";
-import { Context } from "../../Context/Context";
+import { ConcertDataContext } from "../../Context/Context";
 import { Filter } from "../../Interfaces/AppInterfaces";
+import React from "react";
+import { GetCurrentUsersPosition } from "../../Services/GetCurrentUsersPosition";
 function FilterComponent() {
-  const { filter, setFilter, setSelectedEventId }: any = useContext(Context);
+  const { filter, setFilter, setSelectedEventId, setActiveKeyWord, setMapCenter, setKeyWordSearchResponse, setSearchInAllEvents, setInfoArr, searchAllEvents}: any = useContext(ConcertDataContext);
 
-  function resetFilter(): void {
+  async function resetFilter(): Promise<void> {
     setSelectedEventId(-1);
     setFilter({
       startDate: new Date(),
       endDate: new Date(),
       reset: true,
     });
+    setActiveKeyWord(undefined);
+    setMapCenter(await GetCurrentUsersPosition());
+    setKeyWordSearchResponse([]);    
+    setInfoArr([]);
   }
   
   function handleDayFilterChange(event: Date): void {
@@ -75,11 +81,19 @@ function FilterComponent() {
     }
   }
 
+  function searchInAllEvents(event: any): void {
+    setSearchInAllEvents((prev) => 
+      !prev
+    );
+   }
+
   return (
     <div className="wrapper">
       <div className="container">
         <WeekComponent handleDayFilterChange={handleDayFilterChange}></WeekComponent>
         <button onClick={resetFilter}>Reset Filter</button>
+        <button onClick={searchInAllEvents}>Search In {searchAllEvents.toString()}</button>
+
       </div>
     </div>
   );

@@ -1,17 +1,25 @@
-import './SearchBarStyles.css'
+import "./SearchBarStyles.css";
+import { KeyWordResult } from "../../Interfaces/AppInterfaces";
+import { ConcertDataContext } from "../../Context/Context";
+import { useContext } from "react";
+import React from "react";
 
-function SearchHit(props: any) {
-    function handleSearchHitClick() {
-        console.log(props.value + "was clicked");
+function SearchHit({value, keyWordType}: KeyWordResult) {
+  const { setActiveKeyWord, setInfoArr }: any = useContext(ConcertDataContext);
 
-    }
+  async function handleSearchHitClick() {
+    setActiveKeyWord({value, keyWordType})
+    setInfoArr([])
+  }
 
   return (
     <div className="search-hit-anchor-tag-container">
-        <a className="search-hit" onClick={(e) => handleSearchHitClick()}>{props.value}</a>
-        <i className={props.class + ' icon'}></i>
+      <a className="search-hit" onClick={() => handleSearchHitClick()}>
+        {value}
+      </a>
+      <i className={keyWordType + " icon"}></i>
     </div>
-  )
+  );
 }
 
-export default SearchHit
+export default SearchHit;

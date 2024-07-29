@@ -1,17 +1,18 @@
 import './SearchBarStyles.css'
 
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { get } from "../../Services/APIService";
 import { KeywordSearchHitContainer } from "./KeywordSearchHitContainer";
-import { Context } from "../../Context/Context";
+import { ConcertDataContext } from "../../Context/Context";
+import React from 'react';
 
 
 function SearchBarComponent() {
-  const { setKeyWordSearchResponse }: any = useContext(Context);
+  const { setKeyWordSearchResponse }: any = useContext(ConcertDataContext);
 
   async function checkDatabaseForMatchingTerms(KeyWord: string): Promise<any> {
     if (KeyWord.trim() != "") {
-      setKeyWordSearchResponse(await get({ url: `http://localhost:8080/search/${KeyWord}` }));
+      setKeyWordSearchResponse(await get({ url: `http://localhost:8080/api/search/${KeyWord}` }));
     }
     else {
       setKeyWordSearchResponse([]);

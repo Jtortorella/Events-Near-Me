@@ -1,5 +1,5 @@
 import React from "react";
-import { Provider } from "./Context/Context";
+import { ConcertDataProvider } from "./Context/Context";
 import Toaster from "./Components/ToasterComponent/Toaster";
 import LoadingWheel from "./Components/LoadingWheel/LoadingWheel";
 import FilterComponent from "./Components/FilterComponent/FilterComponent";
@@ -8,13 +8,13 @@ import SearchBarComponent from "./Components/SearchBarComponent/SearchBarCompone
 
 const App: React.FC = () => {
   return (
-    <Provider>
+    <ConcertDataProvider>
       <SearchBarComponent />
       <FilterComponent />
       <Toaster />
       <LoadingWheel />
       <LeafletMapComponent />
-    </Provider>
+    </ConcertDataProvider>
   );
 };
 

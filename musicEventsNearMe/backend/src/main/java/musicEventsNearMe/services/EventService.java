@@ -46,4 +46,8 @@ public class EventService {
     private List<PerformerDTO> updatePerformerOrSavePerformer(List<Performer> performerList) {
         return performerService.updateOrSaveEntityAndReturnEntity(performerList);
     }
+
+    public void deletePreviousEvents() {
+        musicEventService.deletePreviousEvents();
+    }
 }

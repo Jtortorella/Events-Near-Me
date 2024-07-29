@@ -12,6 +12,6 @@ import musicEventsNearMe.dto.Genre;
 public interface GenreRepository extends JpaRepository<Genre, Long> {
     Optional<Genre> findByGenreName(String genreName);
 
-    @Query(value = "SELECT genre_name, ' GENRE' AS TYPE FROM GENRES WHERE genre_name LIKE %:name% LIMIT 2", nativeQuery = true)
-    Optional<List<String>> searchByGenreName(@Param("name") String name);
+    @Query(value = "SELECT genre_name as value, 'GENRE' AS key_word_type FROM GENRES WHERE genre_name LIKE %:name% LIMIT 2", nativeQuery = true)
+    Optional<List<String[]>> searchByGenreName(@Param("name") String name);
 }

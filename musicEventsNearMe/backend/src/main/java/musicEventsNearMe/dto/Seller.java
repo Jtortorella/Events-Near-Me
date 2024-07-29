@@ -42,5 +42,4 @@ public class Seller {
     public int hashCode() {
         return Objects.hash(id, identifier, name);
     }
-
 }

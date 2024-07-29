@@ -14,7 +14,7 @@ import musicEventsNearMe.interfaces.BaseRepository;
 public interface PerformerRepository extends BaseRepository<PerformerDTO> {
     Optional<PerformerDTO> findByIdentifier(String identifier);
 
-    @Query(value = "SELECT NAME, ' PERFORMER NAME' AS TYPE FROM PERFORMERS WHERE name LIKE %:name% LIMIT 2", nativeQuery = true)
-    Optional<List<String>> searchByPerformerName(@Param("name") String name);
+    @Query(value = "SELECT NAME AS value, 'PERFORMER' AS key_word_type FROM PERFORMERS WHERE name LIKE %:name% LIMIT 2", nativeQuery = true)
+    Optional<List<String[]>> searchByPerformerName(@Param("name") String name);
 
 }

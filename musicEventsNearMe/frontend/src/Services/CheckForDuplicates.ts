@@ -14,5 +14,4 @@ export function RemoveDuplicatesBetweenTwoArrays(newData: Array<any> | null, pre
     else {
         return previousData;
     }
-
 }

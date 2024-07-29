@@ -94,6 +94,10 @@ export interface Performer {
   image: string;
   genres: Genre[];
 }
+export interface KeyWordResult {
+  value: string,
+  keyWordType: string,
+}
 
 export interface PriceSpecification {
   price: string;

@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import { ConcertDataContextProps, Context } from "../../Context/Context";
+import { ConcertDataContext } from "../../Context/Context";
 import "../../Styles/WheelStyles.css";
 
 function LoadingWheel() {
-  const props: ConcertDataContextProps | undefined = useContext(Context);
+  const props: any = useContext(ConcertDataContext);
 
   return (
     props?.isLoading && (

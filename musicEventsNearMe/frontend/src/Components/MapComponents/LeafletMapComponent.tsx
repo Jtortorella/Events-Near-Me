@@ -4,15 +4,15 @@ import { MapContainer } from "react-leaflet/MapContainer";
 import "./MapStyles.css";
 import { GetCurrentUsersPosition } from "../../Services/GetCurrentUsersPosition";
 import { useContext, useEffect, useState } from "react";
-import { Context } from "../../Context/Context";
 import { LatLng } from "leaflet";
 import MapComponent from "./MapComponent";
-import InfoWindowContent from "./InfoWindowContent";
+import InfoWindowContent from "../InfoWindowComponent/InfoWindowContent";
+import { ConcertDataContext } from "../../Context/Context";
+import React from "react";
 export default function LeafletMapComponent() {
-  const [mapCenter, setMapCenter] = useState<LatLng | undefined>(
-    new LatLng(32.7765, -79.9311)
-  );
-  const { setIsLoading, selectedEventId, isLoading, isError}: any = useContext(Context);
+
+  const { setIsLoading, selectedEventId, isLoading, isError, setMapCenter, mapCenter }: any =
+    useContext(ConcertDataContext);
 
   useEffect(() => {
     setIsLoading(true);
@@ -28,8 +28,8 @@ export default function LeafletMapComponent() {
     if (isLoading == true || isError == true) {
       styles += " blur";
     }
-    return styles
-  }
+    return styles;
+  };
 
   async function handleDefaultCenter(): Promise<LatLng | undefined> {
     try {
@@ -41,8 +41,8 @@ export default function LeafletMapComponent() {
   }
 
   return (
-<div id="container" className={setClasses()}  >
-<InfoWindowContent />
+    <div id="container" className={setClasses()}>
+      <InfoWindowContent />
       <MapContainer
         style={{ height: "65vh", width: "80vw", margin: "0 auto" }}
         center={mapCenter}

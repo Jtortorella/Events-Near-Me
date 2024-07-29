@@ -1,22 +1,41 @@
 package musicEventsNearMe.services;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import lombok.AllArgsConstructor;
 import musicEventsNearMe.entities.EventApiResponse;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class DatabaseService {
 
     private final EventService eventService;
+
+    @Scheduled(fixedRate = 43200000)
+    public void scheduledTasks() {
+        try {
+            System.out.println("ATTEMPTED TO UPDATE DATABASE");
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                updateDatabaseWithConcertData();
+            });
+            // deletePreviousEvents();
+            future.thenRun(() -> {
+                System.out.println("DATABASE HAS FINISHED UPDATING!");
+            });
+        } catch (Exception e) {
+            System.out.println("AN ERROR HAS OCCURED");
+            System.out.println(e.getMessage());
+        }
+    }
 
     public void updateDatabaseWithConcertData() {
         try {
@@ -25,7 +44,8 @@ public class DatabaseService {
             Optional.ofNullable(response.getBody())
                     .ifPresent(body -> {
                         body.getEvents().forEach((event) -> eventService.updateOrCreateMusicEvent(event));
-                        for (int currentPage = 1; currentPage <= body.getPagination().getTotalPages(); currentPage++) {
+                        for (int currentPage = 1; currentPage <= body.getPagination()
+                                .getTotalPages(); currentPage++) {
                             try {
                                 fetchEventsForPage(buildApiUrl(currentPage));
                             } catch (RestClientException e) {
@@ -52,7 +72,6 @@ public class DatabaseService {
         String apiUrl = "https://www.jambase.com/jb-api/v1/events";
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("page", currentPage)
-                .queryParam("geoStateIso", "US-SC")
                 .queryParam("eventDateFrom", getCurrentDate())
                 .queryParam("eventDateTo", getMaximumDate())
                 .queryParam("apikey", "be261bce-a04b-45fd-813b-bc31da5c73e7")
@@ -68,5 +87,9 @@ public class DatabaseService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = LocalDate.now().plusDays(30);
         return localDate.format(formatter);
+    }
+
+    public void deletePreviousEvents() {
+        eventService.deletePreviousEvents();
     }
 }

@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
@@ -17,7 +14,8 @@ import musicEventsNearMe.dto.MusicEventDTO;
 import musicEventsNearMe.dto.Offer;
 import musicEventsNearMe.dto.PriceSpecification;
 import musicEventsNearMe.dto.Seller;
-import musicEventsNearMe.entities.GeoCoordinatesResponeObject;
+import musicEventsNearMe.entities.GeoCoordinatesResponseObject;
+import musicEventsNearMe.entities.KeyWord;
 import musicEventsNearMe.entities.MapMaxims;
 import musicEventsNearMe.entities.MusicEvent;
 import musicEventsNearMe.repositories.OfferRepository;
@@ -35,21 +33,19 @@ public class MusicEventService {
     private final SellerRepository sellerRepository;
     private final DataUtilities dataUtilities;
 
-    public ResponseEntity<List<GeoCoordinatesResponeObject>> getConcertDataForMap(MapMaxims mapMaxim) {
+    public List<GeoCoordinatesResponseObject> getGeoCoordinatesResponseFromMapBounds(MapMaxims mapMaxim) {
         mapMaxim.checkForNegatives();
-        return ResponseEntity.ok().body(
+        return DataUtilities.mapToGeoCoordinatesResponseObject(
                 musicEventRepository.findBetweenGeoCoordinates(
                         mapMaxim.getLatitudeLow(), mapMaxim.getLatitudeHigh(),
                         mapMaxim.getLongitudeLow(), mapMaxim.getLongitudeHigh(),
-                        convertToLocalDateTime(mapMaxim.getStartDate()), convertToLocalDateTime(mapMaxim.getEndDate()))
-                        .stream()
-                        .map(response -> new GeoCoordinatesResponeObject((Long) response[0], (double) response[1],
-                                (double) response[2]))
-                        .collect(Collectors.toList()));
+                        convertToLocalDateTime(mapMaxim.getStartDate()),
+                        convertToLocalDateTime(mapMaxim.getEndDate())));
+
     }
 
-    public ResponseEntity<MusicEventDTO> getEventDetailsById(Long id) {
-        return ResponseEntity.ok().body(musicEventRepository.findById(id).orElse(null));
+    public Optional<MusicEventDTO> getEventDetailsById(Long id) {
+        return musicEventRepository.findById(id);
     }
 
     public LocalDateTime convertToLocalDateTime(String str) {
@@ -118,4 +114,73 @@ public class MusicEventService {
                 .orElseGet(() -> saveEntityAndReturnEntity(newMusicEvent));
     }
 
+    public List<GeoCoordinatesResponseObject> getGeoCoordinatesResponseFromKeyWord(KeyWord keyWord) {
+        String type = keyWord.getKeyWordType();
+        String keywordValue = keyWord.getValue(); // Assuming you have a method to get the keyword value
+
+        switch (type) {
+            case "PERFORMER":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventByPerformerNameForAllEvents(keywordValue));
+            case "ADDRESS":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventsByStreetAddressForAllEvents(keywordValue));
+            case "GENRE":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventsByGenreNameForAllEvents(keywordValue));
+            case "LOCATION":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventsByLocationNameForAllEvents(keywordValue));
+            default:
+                return Collections.emptyList();
+        }
+    }
+
+    public List<GeoCoordinatesResponseObject> getGeoCoordinatesResponseFromKeyWordAndMapBounds(KeyWord keyWord,
+            MapMaxims mapMaxim) {
+        String type = keyWord.getKeyWordType();
+        String keywordValue = keyWord.getValue();
+        mapMaxim.checkForNegatives();
+
+        switch (type) {
+            case "PERFORMER":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventByPerformerNameBetweenGeoAndDates(keywordValue,
+                                mapMaxim.getLatitudeLow(),
+                                mapMaxim.getLatitudeHigh(),
+                                mapMaxim.getLongitudeLow(), mapMaxim.getLongitudeHigh(),
+                                convertToLocalDateTime(mapMaxim.getStartDate()),
+                                convertToLocalDateTime(mapMaxim.getEndDate())));
+            case "ADDRESS":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventByStreetAddressBetweenGeoAndDates(keywordValue,
+                                mapMaxim.getLatitudeLow(),
+                                mapMaxim.getLatitudeHigh(),
+                                mapMaxim.getLongitudeLow(), mapMaxim.getLongitudeHigh(),
+                                convertToLocalDateTime(mapMaxim.getStartDate()),
+                                convertToLocalDateTime(mapMaxim.getEndDate())));
+            case "GENRE":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventByGenreBetweenGeoAndDates(keywordValue,
+                                mapMaxim.getLatitudeLow(),
+                                mapMaxim.getLatitudeHigh(),
+                                mapMaxim.getLongitudeLow(), mapMaxim.getLongitudeHigh(),
+                                convertToLocalDateTime(mapMaxim.getStartDate()),
+                                convertToLocalDateTime(mapMaxim.getEndDate())));
+            case "LOCATION":
+                return DataUtilities.mapToGeoCoordinatesResponseObject(
+                        musicEventRepository.findMusicEventByLocationBetweenGeoAndDates(keywordValue,
+                                mapMaxim.getLatitudeLow(),
+                                mapMaxim.getLatitudeHigh(),
+                                mapMaxim.getLongitudeLow(), mapMaxim.getLongitudeHigh(),
+                                convertToLocalDateTime(mapMaxim.getStartDate()),
+                                convertToLocalDateTime(mapMaxim.getEndDate())));
+            default:
+                return Collections.emptyList();
+        }
+    }
+
+    public void deletePreviousEvents() {
+        musicEventRepository.deletePreviousEvents();
+    }
 }

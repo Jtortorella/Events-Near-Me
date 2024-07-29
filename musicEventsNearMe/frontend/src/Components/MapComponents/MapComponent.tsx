@@ -1,23 +1,34 @@
 import "leaflet/dist/leaflet.css"; // Import Leaflet CSS
-import { TileLayer, useMapEvents } from "react-leaflet";
+import { TileLayer, useMap, useMapEvents } from "react-leaflet";
 import "./MapStyles.css";
-import { useContext, useEffect } from "react";
-import { Context } from "../../Context/Context";
-import { getEventMarkers } from "../../Hooks/APICall";
+import { useContext, useEffect, useMemo } from "react";
+import { ConcertDataContext } from "../../Context/Context";
 import { LatLngBounds } from "leaflet";
 import { MarkerComponent } from "./MarkerComponent";
+import React from "react";
 
 function MapComponent() {
-  const { handleGeoCoordinatesImport, setIsLoading, filter, setIsError}: any =
-    useContext(Context);
+
+  const { filter, setMapBounds, mapCenter, setIsLoading}: any =
+    useContext(ConcertDataContext);
+
+    const currentMap = useMap();
 
     useEffect(() => {
-      handleMapBoundChangeOrFilterChange(map.getBounds());
-    }, []);
+      setIsLoading(true);
+      currentMap.flyTo(mapCenter);
+      setIsLoading(false);
+    }, [mapCenter]);
 
+    //When filter change update map bound or filter.
     useEffect(() => {
       handleMapBoundChangeOrFilterChange(map.getBounds());
     }, [filter]);
+
+        //On first load.
+        useEffect(() => {
+          handleMapBoundChangeOrFilterChange(map.getBounds());
+        }, []);
 
   const map = useMapEvents({
     moveend() {
@@ -27,8 +38,9 @@ function MapComponent() {
 
   const handleMapBoundChangeOrFilterChange = async (
     bounds: LatLngBounds
-  ): Promise<void> =>
-    getEventMarkers(bounds, filter, setIsLoading, setIsError, handleGeoCoordinatesImport);
+  ): Promise<void> => {
+    setMapBounds(bounds);
+  }
 
   return (
     <div>
