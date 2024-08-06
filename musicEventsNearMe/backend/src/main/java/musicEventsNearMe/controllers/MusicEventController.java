@@ -20,7 +20,6 @@ import musicEventsNearMe.entities.MapMaxims;
 import musicEventsNearMe.services.LocationService;
 import musicEventsNearMe.services.MusicEventService;
 import musicEventsNearMe.services.PerformerService;
-import musicEventsNearMe.utilities.DataUtilities;
 
 @RestController
 @RequestMapping("/api")
