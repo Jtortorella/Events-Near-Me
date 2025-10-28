@@ -18,6 +18,7 @@ export default function LeafletMapComponent() {
     setIsLoading(true);
     handleDefaultCenter();
     setIsLoading(false);
+    console.log(setIsLoading);
   }, []);
 
   const setClasses = () => {
